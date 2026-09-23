@@ -1,0 +1,18 @@
+# Personal account data — never commit (public repo)
+profile/
+screenshots/
+tests/screenshots/
+*.db
+*.sqlite
+*.sqlite3
+data/cache/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Claude Code local settings
+.claude/settings.local.json
