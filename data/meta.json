@@ -1,0 +1,1160 @@
+{
+  "retrieved": "2026-09-23",
+  "sources": [
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715",
+      "what": "support card tier list (Game8 walkthrough team, assumes MLB)",
+      "date": "2026-09-07"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352",
+      "what": "trainee tier list: CM19 + Team Trials",
+      "date": "2026-09-15"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536805",
+      "what": "skills tier list",
+      "date": "2026-09-15"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/618574",
+      "what": "CM20 Sagittarius Cup guide (course + expected timing)",
+      "date": "2026-09-22"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613634",
+      "what": "CM18 Libra Cup details",
+      "date": "2026-09-03"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/607273",
+      "what": "July 2026 Global banners/events",
+      "date": "2026-07-26"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161",
+      "what": "August 2026 Global banners",
+      "date": "2026-08-26"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216",
+      "what": "September 2026 Global banners/events incl. CM19",
+      "date": "2026-09-06"
+    },
+    {
+      "url": "https://game8.co/games/Umamusume-Pretty-Derby/archives/537125",
+      "what": "Global banner history/predictions",
+      "date": "2026-09-17"
+    },
+    {
+      "url": "https://uma.guide/cm-schedule/",
+      "what": "Global CM cup order (CM19+) with courses",
+      "date": ""
+    },
+    {
+      "url": "https://www.umareference.com/guide/currencies/jewels-carats",
+      "what": "recurring carat income",
+      "date": "2026-08-26"
+    },
+    {
+      "url": "https://gametora.com/umamusume",
+      "what": "IDs/release dates via local cache (data/cache)",
+      "date": "2026-09-23"
+    }
+  ],
+  "global": {
+    "current_scenario": "Brighter Together: Our Grand Concert (Grand Live)",
+    "scenarios": [
+      "URA Finale",
+      "Unity Cup (Aoharu)",
+      "Trackblazer (Climax)",
+      "Brighter Together: Our Grand Concert (Grand Live)"
+    ],
+    "notes": "Grand Live launched on Global 2026-07-22 (4th permanent scenario); Grand Masters expected later in 2026. GameTora tier/banner/CM pages are JS-rendered and could not be read, so tiers come from Game8 (Sep 2026); tier mapping: Game8 SS->S, S->A. min_lb=4 everywhere because Game8 rates at MLB. CM20+ dates are estimates (Game8: CM20 'early October'; later cups assume ~18-day cadence, course order from uma.guide). Banner source conflict: a Game8 search snippet placed CM20 between Zenno Rob Roy and Narita Brian banners, while the Sep schedule lists Wonder Acute/Christmas; Sep schedule kept. Announced upcoming banners (Wonder Acute, Christmas) list cards that have no release_en yet in cache; IDs matched via JP release dates (Wonder Acute 110001, Eishin Flash 30122, Narita Top Road SR 20053 = JP 2022-11-17; Christmas Vodka 100802, Daiwa 100902, Air Groove 30124, Narita Brian 30123 = JP 2022-11-28). Early scenario names from memory, not re-verified. Dropped Game8-listed cards absent from Global per cache: Curren Chan speed, El Condor Pasa Mud-Caked speed, King Halo First-Rate Plan speed, Shinko Windy WARNING GATE speed, Zenno Rob Roy Perfect Book stamina (Game8 may be ahead of the cache or mixing JP)."
+  },
+  "champions_meeting": [
+    {
+      "name": "Leo Cup (CM16)",
+      "start": "2026-07-12",
+      "end": "2026-07-21",
+      "track": "Nakayama",
+      "surface": "turf",
+      "distance_m": 1200,
+      "distance_cat": "short",
+      "direction": "right",
+      "estimate": false,
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/607273"
+    },
+    {
+      "name": "Libra Cup (CM18)",
+      "start": "2026-08-25",
+      "end": "2026-09-03",
+      "track": "Hanshin",
+      "surface": "turf",
+      "distance_m": 1600,
+      "distance_cat": "mile",
+      "direction": "right",
+      "estimate": false,
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613634"
+    },
+    {
+      "name": "Scorpio Cup (CM19)",
+      "start": "2026-09-15",
+      "end": "2026-09-25",
+      "track": "Kyoto",
+      "surface": "turf",
+      "distance_m": 2200,
+      "distance_cat": "medium",
+      "direction": "right",
+      "estimate": false,
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Sagittarius Cup (CM20)",
+      "start": "2026-10-02",
+      "end": "2026-10-12",
+      "track": "Nakayama",
+      "surface": "turf",
+      "distance_m": 2500,
+      "distance_cat": "long",
+      "direction": "right",
+      "estimate": true,
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/618574"
+    },
+    {
+      "name": "Capricorn Cup (CM21)",
+      "start": "2026-10-20",
+      "end": "2026-10-30",
+      "track": "Chukyo",
+      "surface": "turf",
+      "distance_m": 1200,
+      "distance_cat": "short",
+      "direction": "left",
+      "estimate": true,
+      "source": "https://uma.guide/cm-schedule/"
+    },
+    {
+      "name": "Aquarius Cup (CM22)",
+      "start": "2026-11-06",
+      "end": "2026-11-16",
+      "track": "Tokyo",
+      "surface": "dirt",
+      "distance_m": 1600,
+      "distance_cat": "mile",
+      "direction": "left",
+      "estimate": true,
+      "source": "https://uma.guide/cm-schedule/"
+    },
+    {
+      "name": "Pisces Cup (CM23)",
+      "start": "2026-11-24",
+      "end": "2026-12-04",
+      "track": "Nakayama",
+      "surface": "turf",
+      "distance_m": 2000,
+      "distance_cat": "medium",
+      "direction": "right",
+      "estimate": true,
+      "source": "https://uma.guide/cm-schedule/"
+    }
+  ],
+  "banners": [
+    {
+      "name": "Grand Live scenario launch",
+      "start": "2026-07-22",
+      "end": "2026-08-10",
+      "kind": "uma",
+      "featured": [
+        104602
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/607273"
+    },
+    {
+      "name": "Grand Live scenario launch",
+      "start": "2026-07-22",
+      "end": "2026-08-10",
+      "kind": "support",
+      "featured": [
+        30052,
+        30101
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/607273"
+    },
+    {
+      "name": "Steampunk",
+      "start": "2026-07-27",
+      "end": "2026-08-10",
+      "kind": "uma",
+      "featured": [
+        105002,
+        103502
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/607273"
+    },
+    {
+      "name": "Steampunk",
+      "start": "2026-07-27",
+      "end": "2026-08-10",
+      "kind": "support",
+      "featured": [
+        30111,
+        30112
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/607273"
+    },
+    {
+      "name": "Yukino Bijin",
+      "start": "2026-08-05",
+      "end": "2026-08-13",
+      "kind": "uma",
+      "featured": [
+        102901
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Yukino Bijin",
+      "start": "2026-08-05",
+      "end": "2026-08-13",
+      "kind": "support",
+      "featured": [
+        30017
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Seeking the Pearl",
+      "start": "2026-08-12",
+      "end": "2026-08-21",
+      "kind": "uma",
+      "featured": [
+        104201
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Seeking the Pearl",
+      "start": "2026-08-12",
+      "end": "2026-08-21",
+      "kind": "support",
+      "featured": [
+        30114,
+        20051
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Halloween",
+      "start": "2026-08-18",
+      "end": "2026-08-30",
+      "kind": "uma",
+      "featured": [
+        101902,
+        105802
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Halloween",
+      "start": "2026-08-18",
+      "end": "2026-08-30",
+      "kind": "support",
+      "featured": [
+        30115,
+        30116
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Aston Machan",
+      "start": "2026-08-25",
+      "end": "2026-09-02",
+      "kind": "uma",
+      "featured": [
+        108701
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Aston Machan",
+      "start": "2026-08-25",
+      "end": "2026-09-02",
+      "kind": "support",
+      "featured": [
+        30010,
+        30107
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/613161"
+    },
+    {
+      "name": "Yamanin Zephyr",
+      "start": "2026-09-01",
+      "end": "2026-09-10",
+      "kind": "uma",
+      "featured": [
+        107801
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Yamanin Zephyr",
+      "start": "2026-09-01",
+      "end": "2026-09-10",
+      "kind": "support",
+      "featured": [
+        30118,
+        20052
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Autumn Festival",
+      "start": "2026-09-07",
+      "end": "2026-09-19",
+      "kind": "uma",
+      "featured": [
+        102102,
+        103402
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Autumn Festival",
+      "start": "2026-09-07",
+      "end": "2026-09-19",
+      "kind": "support",
+      "featured": [
+        30120,
+        30146
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Nakayama Festa",
+      "start": "2026-09-15",
+      "end": "2026-09-23",
+      "kind": "uma",
+      "featured": [
+        104901
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Nakayama Festa",
+      "start": "2026-09-15",
+      "end": "2026-09-23",
+      "kind": "support",
+      "featured": [
+        30016,
+        30097
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Wonder Acute (announced)",
+      "start": "2026-09-23",
+      "end": "2026-10-04",
+      "kind": "uma",
+      "featured": [
+        110001
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Wonder Acute (announced)",
+      "start": "2026-09-23",
+      "end": "2026-10-04",
+      "kind": "support",
+      "featured": [
+        30122,
+        20053
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Christmas (announced)",
+      "start": "2026-09-28",
+      "end": "2026-10-12",
+      "kind": "uma",
+      "featured": [
+        100802,
+        100902
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    },
+    {
+      "name": "Christmas (announced)",
+      "start": "2026-09-28",
+      "end": "2026-10-12",
+      "kind": "support",
+      "featured": [
+        30124,
+        30123
+      ],
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/617216"
+    }
+  ],
+  "support_tiers": [
+    {
+      "support_id": 30052,
+      "tier": "S",
+      "min_lb": 4,
+      "reason": "must-have Grand Live pal: extra performance + energy cut on friendship training, hints See Ya Later!",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30101,
+      "tier": "S",
+      "min_lb": 4,
+      "reason": "top Grand Live speed card, high-priority borrow; skill pt bonus, links to Come What May",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30028,
+      "tier": "S",
+      "min_lb": 4,
+      "reason": "high specialty priority speed stat stick; hints Professor of Curvature",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30107,
+      "tier": "S",
+      "min_lb": 4,
+      "reason": "strong training effect speed SSR, excellent for front runners",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30016,
+      "tier": "S",
+      "min_lb": 4,
+      "reason": "best stamina card; recovery skill hints for medium/long",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30010,
+      "tier": "S",
+      "min_lb": 4,
+      "reason": "best wit stat stick: high friendship bonus + training effect",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30020,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30072,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30015,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed card for sprint/mile",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30002,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed card, front runner skills",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30025,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30045,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30053,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed card, sprint/mile hints",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30065,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong speed stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30110,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "top stamina SSR for long builds",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30115,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong stamina SSR, front runner support",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30069,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong stamina stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30008,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong stamina card, front runner hints",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30118,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "new strong stamina SSR (Sep 2026)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30114,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "gives Flash Forward (rare Leap Forward) for late/end in sprint/mile",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30007,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "best power stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30056,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong power card",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30005,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong power card",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30011,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "best guts card",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30068,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong wit stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30066,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "required for front runners: hints Taking the Lead",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30097,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "skill pt bonus; key for end closers",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30054,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong wit stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30146,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "new strong wit SSR (Sep 2026)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30091,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong wit stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30111,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "strong wit stat stick",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 20050,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "10% training effect + skill pt bonus",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 20012,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "wit SR with initial friendship + wit bonus",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 20002,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "wit SR with high initial friendship",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 20023,
+      "tier": "A",
+      "min_lb": 4,
+      "reason": "speed SR with skill pt bonus",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    },
+    {
+      "support_id": 30036,
+      "tier": "B",
+      "min_lb": 4,
+      "reason": "pal alternative if no Light Hello",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536715"
+    }
+  ],
+  "uma_tiers": [
+    {
+      "card_id": 100602,
+      "tier": "S",
+      "distances": [
+        "mile",
+        "medium"
+      ],
+      "styles": [
+        "pace",
+        "late"
+      ],
+      "reason": "SS in CM19 Scorpio (Kyoto 2200) and Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 102102,
+      "tier": "S",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "pace",
+        "late",
+        "end"
+      ],
+      "reason": "S in CM19, SS in Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 102201,
+      "tier": "A",
+      "distances": [
+        "mile",
+        "medium"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "S in CM19 (medium)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 102901,
+      "tier": "A",
+      "distances": [
+        "mile",
+        "medium"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "S in CM19 (medium)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 103001,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "S in CM19 (medium)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 105802,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "S in CM19 (medium)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 105002,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "end"
+      ],
+      "reason": "S in CM19 and Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 100101,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "pace",
+        "late"
+      ],
+      "reason": "S in CM19 (medium)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 102401,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "front",
+        "pace"
+      ],
+      "reason": "S in CM19 and Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 108701,
+      "tier": "S",
+      "distances": [
+        "short"
+      ],
+      "styles": [
+        "front",
+        "pace"
+      ],
+      "reason": "SS Team Trials; front runner with innate Groundwork",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 103802,
+      "tier": "S",
+      "distances": [
+        "short"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "SS Team Trials (sprint)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 106102,
+      "tier": "S",
+      "distances": [
+        "short"
+      ],
+      "styles": [
+        "late"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 102602,
+      "tier": "S",
+      "distances": [
+        "medium"
+      ],
+      "styles": [
+        "front"
+      ],
+      "reason": "SS Team Trials; top front runner for CM20 long",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 105101,
+      "tier": "S",
+      "distances": [
+        "short",
+        "mile"
+      ],
+      "styles": [
+        "pace",
+        "late"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 100201,
+      "tier": "S",
+      "distances": [
+        "mile",
+        "medium"
+      ],
+      "styles": [
+        "front"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 101002,
+      "tier": "S",
+      "distances": [
+        "short",
+        "mile"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 101001,
+      "tier": "S",
+      "distances": [
+        "short",
+        "mile"
+      ],
+      "styles": [
+        "pace"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 100702,
+      "tier": "S",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "end"
+      ],
+      "reason": "SS Team Trials; strong legacy unique",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 100402,
+      "tier": "S",
+      "distances": [
+        "mile"
+      ],
+      "styles": [
+        "front"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 102001,
+      "tier": "S",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "front"
+      ],
+      "reason": "SS Team Trials",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 109801,
+      "tier": "S",
+      "distances": [
+        "mile",
+        "medium"
+      ],
+      "styles": [
+        "front",
+        "pace"
+      ],
+      "reason": "SS Team Trials; long-lasting dirt meta",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 104602,
+      "tier": "S",
+      "distances": [
+        "mile",
+        "medium"
+      ],
+      "styles": [
+        "front"
+      ],
+      "reason": "SS Team Trials (dirt)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    },
+    {
+      "card_id": 106801,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "front"
+      ],
+      "reason": "strong front runner for CM20 Sagittarius (long)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/618574"
+    },
+    {
+      "card_id": 100103,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "pace",
+        "late"
+      ],
+      "reason": "recommended late surger for CM20 (long)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/618574"
+    },
+    {
+      "card_id": 105001,
+      "tier": "A",
+      "distances": [
+        "medium",
+        "long"
+      ],
+      "styles": [
+        "end"
+      ],
+      "reason": "recommended end closer for CM20 (long)",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/618574"
+    },
+    {
+      "card_id": 104201,
+      "tier": "A",
+      "distances": [
+        "short",
+        "mile"
+      ],
+      "styles": [
+        "pace",
+        "late"
+      ],
+      "reason": "S Team Trials; sprint/mile any style but front",
+      "source": "https://game8.co/games/Umamusume-Pretty-Derby/archives/536352"
+    }
+  ],
+  "skill_tiers": [
+    {
+      "skill_id": 201601,
+      "tier": "S",
+      "reason": "front runner early accel; top opener pick"
+    },
+    {
+      "skill_id": 100201,
+      "tier": "S",
+      "reason": "Seiun Sky unique; strong inherited front accel"
+    },
+    {
+      "skill_id": 200531,
+      "tier": "S",
+      "reason": "front runner early accel (Mihono Bourbon Halloween wit)"
+    },
+    {
+      "skill_id": 200641,
+      "tier": "S",
+      "reason": "late-race accel"
+    },
+    {
+      "skill_id": 100271,
+      "tier": "S",
+      "reason": "late-race accel"
+    },
+    {
+      "skill_id": 200601,
+      "tier": "S",
+      "reason": "late-race accel"
+    },
+    {
+      "skill_id": 200651,
+      "tier": "S",
+      "reason": "accel"
+    },
+    {
+      "skill_id": 202401,
+      "tier": "S",
+      "reason": "accel"
+    },
+    {
+      "skill_id": 200331,
+      "tier": "S",
+      "reason": "strong corner velocity gold (Kitasan Black speed SSR)"
+    },
+    {
+      "skill_id": 201662,
+      "tier": "S",
+      "reason": "universal gold velocity from Light Hello"
+    },
+    {
+      "skill_id": 201271,
+      "tier": "S",
+      "reason": "front runner velocity gold"
+    },
+    {
+      "skill_id": 202371,
+      "tier": "S",
+      "reason": "velocity gold"
+    },
+    {
+      "skill_id": 201651,
+      "tier": "S",
+      "reason": "velocity gold"
+    },
+    {
+      "skill_id": 201173,
+      "tier": "S",
+      "reason": "velocity gold"
+    },
+    {
+      "skill_id": 200461,
+      "tier": "S",
+      "reason": "velocity gold"
+    },
+    {
+      "skill_id": 200591,
+      "tier": "S",
+      "reason": "velocity gold"
+    },
+    {
+      "skill_id": 200541,
+      "tier": "S",
+      "reason": "front runner velocity gold"
+    },
+    {
+      "skill_id": 200681,
+      "tier": "S",
+      "reason": "mile velocity gold"
+    },
+    {
+      "skill_id": 200963,
+      "tier": "S",
+      "reason": "velocity gold"
+    },
+    {
+      "skill_id": 201612,
+      "tier": "S",
+      "reason": "velocity"
+    },
+    {
+      "skill_id": 201251,
+      "tier": "S",
+      "reason": "cheap reliable front runner white"
+    },
+    {
+      "skill_id": 201181,
+      "tier": "S",
+      "reason": "cheap reliable long-distance white"
+    },
+    {
+      "skill_id": 201321,
+      "tier": "S",
+      "reason": "cheap reliable pace white"
+    },
+    {
+      "skill_id": 201391,
+      "tier": "S",
+      "reason": "cheap reliable late white"
+    },
+    {
+      "skill_id": 201103,
+      "tier": "A",
+      "reason": "rare Leap Forward; late/end in sprint/mile (Daiichi Ruby)"
+    },
+    {
+      "skill_id": 201701,
+      "tier": "A",
+      "reason": "velocity gold linked to Agnes Tachyon speed SSR"
+    },
+    {
+      "skill_id": 202322,
+      "tier": "A",
+      "reason": "accel"
+    },
+    {
+      "skill_id": 100101,
+      "tier": "A",
+      "reason": "accel"
+    },
+    {
+      "skill_id": 200491,
+      "tier": "A",
+      "reason": "accel"
+    },
+    {
+      "skill_id": 110031,
+      "tier": "A",
+      "reason": "velocity"
+    },
+    {
+      "skill_id": 201571,
+      "tier": "A",
+      "reason": "recovery; essential for long CM20 (Game8 CM20 guide)"
+    }
+  ],
+  "income": {
+    "daily_carats": 46,
+    "weekly_carats": 570,
+    "monthly_pass_carats_per_day": 50,
+    "notes": "daily = daily missions 30 + login ~16 (110/wk); weekly = 7x daily + Team Trials up to 250. Excludes CM (up to 3600/mo Graded, 1940 Open), bingo (~1260/mo), legend races (250/win), events. Monthly pass: 500 paid up front + 50 free/day for 30 days. Game8 claims daily missions give 75; umareference says 30.",
+    "source": "https://www.umareference.com/guide/currencies/jewels-carats"
+  }
+}
