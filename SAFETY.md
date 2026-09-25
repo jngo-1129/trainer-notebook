@@ -32,6 +32,8 @@ Only anonymous HTTPS GETs to public community data. No cookies, no auth headers,
 | `gametora.com` | Game database JSON (cards, umas, skills, races, courses, Champions Meeting schedule, parent affinity, JP/Global release dates) |
 | `raw.githubusercontent.com` | Only `daftuyda/UmaTools` public assets: English event choices and career objectives (GameTora's event text is obfuscated, and we don't decode it) |
 
+The scanner also accepts the literal `http://www.w3.org/2000/svg`. That string is the namespace identifier every SVG file must declare (used by the evaluation charts), and it is never fetched. The downloader's own allow-list (`gamedata.allowed`) doesn't include it.
+
 The app's own web UI binds to `127.0.0.1` only, so it can't be reached from other machines. It also rejects requests whose Host or Origin isn't this app, so other websites open in your browser can't call it. Downloads use a dedicated opener with no proxy and no cookies, check the allow-list before every request, and refuse redirects off it.
 
 ## How each feature stays safe

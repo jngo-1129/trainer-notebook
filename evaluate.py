@@ -433,6 +433,97 @@ def tier_markdown(r: dict) -> str:
     return "\n".join(lines)
 
 
+SVG_STYLE = """<style>
+  svg { --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7; --accent:#2a78d6; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --grid:#2c2c2a; --axis:#383835; --accent:#3987e5; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--ink2); font-size: 13px; }
+  .title { fill: var(--ink); font-size: 16px; font-weight: 600; } .val { fill: var(--ink); font-weight: 600; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .app { fill: var(--accent); } .base { fill: var(--muted); } rect.hit { fill: transparent; }
+  .grid { stroke: var(--grid); stroke-width: 1; } .axis { stroke: var(--axis); stroke-width: 1; }
+  .ref { stroke: var(--ink2); stroke-width: 1; } .whisker { stroke: var(--ink2); stroke-width: 1.5; }
+</style>"""
+
+
+def bar_svg(title: str, subtitle: str, rows: list[dict], vmax: float, ticks: list[float], fmt, ref: tuple | None = None) -> str:
+    """Static horizontal bar chart for the README (GitHub shows SVGs as images, so hover = native <title> tooltips).
+    rows: {"label", "value", "app": bool, "sd": optional whisker, "note": optional tooltip text}."""
+    esc = lambda s: str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+    W, left, right, top, row_h, bar_h = 680, 230, 70, 92, 38, 16
+    plot_w, H = W - left - right, top + row_h * len(rows) + 34
+    x = lambda v: left + plot_w * v / vmax
+    out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img" '
+           f'aria-label="{esc(title)}">', f"<title>{esc(title)}</title>", SVG_STYLE,
+           f'<rect width="{W}" height="{H}" rx="8" style="fill:var(--surface)"/>',
+           f'<text x="20" y="32" class="title">{esc(title)}</text>', f'<text x="20" y="54">{esc(subtitle)}</text>']
+    for i, (cls, name) in enumerate((("app", "Trainer Notebook model"), ("base", "Baseline"))):  # legend
+        lx = 20 + i * 190
+        out.append(f'<rect x="{lx}" y="66" width="12" height="12" rx="3" class="{cls}"/><text x="{lx + 18}" y="77">{name}</text>')
+    bottom = top + row_h * len(rows)
+    for t in ticks:
+        out.append(f'<line x1="{x(t):.1f}" x2="{x(t):.1f}" y1="{top - 6}" y2="{bottom}" class="grid"/>'
+                   f'<text x="{x(t):.1f}" y="{bottom + 18}" text-anchor="middle" class="tick">{fmt(t)}</text>')
+    if ref:
+        rv, rl = ref
+        out.append(f'<line x1="{x(rv):.1f}" x2="{x(rv):.1f}" y1="{top - 10}" y2="{bottom}" class="ref"/>'
+                   f'<text x="{x(rv) + 4:.1f}" y="{top - 12}" class="tick">{esc(rl)}</text>')
+    for i, r in enumerate(rows):
+        y, x0, x1 = top + i * row_h + (row_h - bar_h) / 2, left, x(r["value"])
+        rad = min(4, (x1 - x0) / 2)  # rounded data end, square at the baseline
+        tip = esc(f'{r["label"]}: {fmt(r["value"])}' + (f' ± {fmt(r["sd"])}' if r.get("sd") else "") + (f' ({r["note"]})' if r.get("note") else ""))
+        out.append(f'<g><title>{tip}</title>'
+                   f'<rect x="0" y="{top + i * row_h}" width="{W}" height="{row_h}" class="hit"/>'
+                   f'<text x="{left - 12}" y="{y + bar_h - 3}" text-anchor="end"{" class=\"val\"" if r["app"] else ""}>{esc(r["label"])}</text>'
+                   f'<path class="{"app" if r["app"] else "base"}" d="M{x0} {y} H{x1 - rad:.1f} Q{x1:.1f} {y} {x1:.1f} {y + rad} '
+                   f'V{y + bar_h - rad} Q{x1:.1f} {y + bar_h} {x1 - rad:.1f} {y + bar_h} H{x0} Z"/>')
+        end = x1
+        if r.get("sd"):
+            a, b = x(r["value"] - r["sd"]), x(r["value"] + r["sd"])
+            cy = y + bar_h / 2
+            out.append(f'<line x1="{a:.1f}" x2="{b:.1f}" y1="{cy}" y2="{cy}" class="whisker"/>'
+                       f'<line x1="{b:.1f}" x2="{b:.1f}" y1="{cy - 5}" y2="{cy + 5}" class="whisker"/>')
+            end = b
+        out.append(f'<text x="{end + 6:.1f}" y="{y + bar_h - 3}" class="val">{fmt(r["value"])}</text></g>')
+    out.append(f'<line x1="{left}" x2="{left}" y1="{top - 6}" y2="{bottom}" class="axis"/></svg>')
+    return "\n".join(out)
+
+
+def write_charts(fr: dict, tr: dict | None) -> list[Path]:
+    """docs/forecast_error.svg and docs/card_model.svg; the tables in EVALUATION.md are their table view."""
+    docs = ROOT / "docs"
+    mae = {r["model"]: r["test_mae"] for r in fr["table"]}
+    picks = [("fixed lag (median, baseline)", "Fixed lag (baseline)", False, ""),
+             ("last lag (naive, baseline)", "Last lag (baseline)", False, ""),
+             (fr["best"], "Line fit, all history", True, "chosen on the tuning half"),
+             (fr["deploy"], "Line fit, last 30 (in app)", True, "shipped in the app")]
+    rows, seen = [], set()
+    for key, label, app, note in picks:
+        if key in mae and key not in seen:
+            seen.add(key)
+            rows.append({"label": label, "value": mae[key], "app": app, "note": note})
+    days = lambda v: f"{v:.1f} d" if 0 < v < 10 else f"{v:.0f} d"
+    top = max(r["value"] for r in rows)
+    step = 20 if top > 40 else 5
+    ticks = [t for t in range(0, int(top) + step, step)]
+    out = [docs / "forecast_error.svg"]
+    out[0].write_text(bar_svg("Banner forecast: error on held-out banners",
+                              f"Mean absolute error in days, lower is better ({fr['test_predictions']} predictions, "
+                              f"~{fr['distinct']} banners)", rows, ticks[-1], ticks, days), "utf-8")
+    if tr:
+        cv = tr["cv"]
+        rows = [{"label": "Newer card is better (baseline)", "value": cv["recency"][0], "sd": cv["recency"][1], "app": False},
+                {"label": "Model, hand-set weights", "value": cv["default"][0], "sd": cv["default"][1], "app": True},
+                {"label": "Model, calibrated weights", "value": cv["tuned"][0], "sd": cv["tuned"][1], "app": True}]
+        pct = lambda v: f"{v * 100:.0f}%"
+        out.append(docs / "card_model.svg")
+        out[1].write_text(bar_svg("Support card model vs expert tier list",
+                                  f"Pairs ranked the same way as Game8, on held-out cards (mean ± SD over {cv['splits']} splits)",
+                                  rows, 1.0, [0, 0.25, 0.5, 0.75, 1.0], pct, ref=(0.5, "coin flip")), "utf-8")
+    return out
+
+
 def write_report(fr: dict, tr: dict | None) -> Path:
     out = ROOT / "docs" / "EVALUATION.md"
     out.parent.mkdir(exist_ok=True)
@@ -451,4 +542,4 @@ if __name__ == "__main__":
     if tr:  # sensitivity check: same procedure, wider search range
         wide = tier_report(spread=2.0)
         tr["wide"] = {"cv": wide["cv"]["tuned"][0], "weights": wide["tuned_weights"]}
-    print("wrote", write_report(fr, tr))
+    print("wrote", write_report(fr, tr), *write_charts(fr, tr))

@@ -10,7 +10,7 @@ from importlib import metadata
 from pathlib import Path
 
 ROOT = Path(__file__).parent
-ALLOWED_HOSTS = {"gametora.com", "raw.githubusercontent.com", "127.0.0.1", "localhost"}
+ALLOWED_HOSTS = {"gametora.com", "raw.githubusercontent.com", "127.0.0.1", "localhost", "www.w3.org"}
 SKIP_DIRS = {".git", ".venv", "venv", "__pycache__"}
 SKIP_FILES = {"safety_check.py"}  # holds the banned list itself
 CODE_EXT = {".py", ".html", ".js", ".ps1", ".bat", ".cmd", ".ahk"}
@@ -43,7 +43,8 @@ IMPORT_RE = re.compile(r"^\s*(?:from\s+(%s)\b|import\s[^\n#]*?\b(%s)\b)|(?:__imp
 API_RE = re.compile(r"\b(%s)[AW]?\b" % "|".join(BANNED_APIS))  # Win32 ...A/...W variants too
 PATH_RE = re.compile(BANNED_PATHS, re.I)
 URL_RE = re.compile(r"(?:https?|wss?)://([^/\s\"'<>):]+)([^\s\"'<>)]*)")
-PATH_PINNED = {"raw.githubusercontent.com": "/daftuyda/UmaTools/"}  # host -> only this path prefix
+PATH_PINNED = {"raw.githubusercontent.com": "/daftuyda/UmaTools/",  # host -> only this path prefix
+               "www.w3.org": "/2000/svg"}  # SVG namespace id in generated charts, never fetched
 
 
 def scan_text(text: str) -> list[str]:
@@ -53,10 +54,12 @@ def scan_text(text: str) -> list[str]:
     out += [f"game path '{m.group(0)}'" for m in PATH_RE.finditer(text)]
     for host, path in URL_RE.findall(text):
         host = host.lower()
-        if not any(host == h or host.endswith("." + h) for h in ALLOWED_HOSTS):
+        match = next((h for h in ALLOWED_HOSTS if host == h or host.endswith("." + h)), None)
+        pin = PATH_PINNED.get(match)
+        if match is None:
             out.append(f"URL host not in allow-list '{host}'")
-        elif host in PATH_PINNED and not path.startswith(PATH_PINNED[host]):
-            out.append(f"URL path not allowed on {host}: '{path}'")
+        elif pin and (host != match or not (path.startswith(pin) if pin.endswith("/") else path == pin)):
+            out.append(f"URL path not allowed on {host}: '{path}'")  # pinned hosts: exact host, prefix or exact path
     return out
 
 
@@ -87,6 +90,9 @@ def _selftest():
         assert scan_text(sneaky), sneaky
     assert scan_text("https://raw.githubusercontent.com/someone/else/x.json")
     assert scan_text("from gamedata import x  # https://gametora.com/data") == []
+    assert scan_text('<svg xmlns="http://www.w3.org/2000/svg">') == []
+    for w3 in ("http://www.w3.org/2000/svg-x", "https://www.w3.org/", "http://a.www.w3.org/2000/svg"):
+        assert scan_text(w3), w3
 
 
 if __name__ == "__main__":

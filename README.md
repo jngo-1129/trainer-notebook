@@ -72,7 +72,11 @@ Global search sits in the header, and the theme button cycles auto → light →
 
 ## How good is the advice?
 
-Measured, not assumed: see **[docs/EVALUATION.md](docs/EVALUATION.md)** (regenerate with `python evaluate.py`).
+Measured, not assumed: see **[docs/EVALUATION.md](docs/EVALUATION.md)** (regenerate with `python evaluate.py`, which also redraws these charts).
+
+![Banner forecast error on held-out banners: fixed lag 77 days, last lag 16, line fit 3.1, line fit last 30 (in app) 2.6](docs/forecast_error.svg)
+
+![Support card model vs expert tier list on held-out cards: recency baseline 48%, hand-set weights 62%, calibrated weights 72%](docs/card_model.svg)
 
 - **Banner forecast:** rolling-origin backtest, held-out mean error of about 3 days (vs about 16 for a naive baseline), with a calibrated interval.
 - **Support card model:** agrees with Game8's within-type rankings on 62% of card pairs with hand-set weights and 72% after calibration on held-out cards. Recency baselines score 47–51%.
