@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 278" width="680" height="278" role="img" aria-label="Banner forecast: error on held-out banners">
+<title>Banner forecast: error on held-out banners</title>
+<style>
+  svg { --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7; --accent:#2a78d6; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --grid:#2c2c2a; --axis:#383835; --accent:#3987e5; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--ink2); font-size: 13px; }
+  .title { fill: var(--ink); font-size: 16px; font-weight: 600; } .val { fill: var(--ink); font-weight: 600; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .app { fill: var(--accent); } .base { fill: var(--muted); } rect.hit { fill: transparent; }
+  .grid { stroke: var(--grid); stroke-width: 1; } .axis { stroke: var(--axis); stroke-width: 1; }
+  .ref { stroke: var(--ink2); stroke-width: 1; } .whisker { stroke: var(--ink2); stroke-width: 1.5; }
+</style>
+<rect width="680" height="278" rx="8" style="fill:var(--surface)"/>
+<text x="20" y="32" class="title">Banner forecast: error on held-out banners</text>
+<text x="20" y="54">Mean absolute error in days, lower is better (289 predictions, ~28 banners)</text>
+<rect x="20" y="66" width="12" height="12" rx="3" class="app"/><text x="38" y="77">Trainer Notebook model</text>
+<rect x="210" y="66" width="12" height="12" rx="3" class="base"/><text x="228" y="77">Baseline</text>
+<line x1="230.0" x2="230.0" y1="86" y2="244" class="grid"/><text x="230.0" y="262" text-anchor="middle" class="tick">0 d</text>
+<line x1="325.0" x2="325.0" y1="86" y2="244" class="grid"/><text x="325.0" y="262" text-anchor="middle" class="tick">20 d</text>
+<line x1="420.0" x2="420.0" y1="86" y2="244" class="grid"/><text x="420.0" y="262" text-anchor="middle" class="tick">40 d</text>
+<line x1="515.0" x2="515.0" y1="86" y2="244" class="grid"/><text x="515.0" y="262" text-anchor="middle" class="tick">60 d</text>
+<line x1="610.0" x2="610.0" y1="86" y2="244" class="grid"/><text x="610.0" y="262" text-anchor="middle" class="tick">80 d</text>
+<g><title>Fixed lag (baseline): 77 d</title><rect x="0" y="92" width="680" height="38" class="hit"/><text x="218" y="116.0" text-anchor="end">Fixed lag (baseline)</text><path class="base" d="M230 103.0 H590.4 Q594.4 103.0 594.4 107.0 V115.0 Q594.4 119.0 590.4 119.0 H230 Z"/>
+<text x="600.4" y="116.0" class="val">77 d</text></g>
+<g><title>Last lag (baseline): 16 d</title><rect x="0" y="130" width="680" height="38" class="hit"/><text x="218" y="154.0" text-anchor="end">Last lag (baseline)</text><path class="base" d="M230 141.0 H302.0 Q306.0 141.0 306.0 145.0 V153.0 Q306.0 157.0 302.0 157.0 H230 Z"/>
+<text x="312.0" y="154.0" class="val">16 d</text></g>
+<g><title>Line fit, all history: 3.1 d (chosen on the tuning half)</title><rect x="0" y="168" width="680" height="38" class="hit"/><text x="218" y="192.0" text-anchor="end" class="val">Line fit, all history</text><path class="app" d="M230 179.0 H240.7 Q244.7 179.0 244.7 183.0 V191.0 Q244.7 195.0 240.7 195.0 H230 Z"/>
+<text x="250.7" y="192.0" class="val">3.1 d</text></g>
+<g><title>Line fit, last 30 (in app): 2.6 d (shipped in the app)</title><rect x="0" y="206" width="680" height="38" class="hit"/><text x="218" y="230.0" text-anchor="end" class="val">Line fit, last 30 (in app)</text><path class="app" d="M230 217.0 H238.4 Q242.4 217.0 242.4 221.0 V229.0 Q242.4 233.0 238.4 233.0 H230 Z"/>
+<text x="248.4" y="230.0" class="val">2.6 d</text></g>
+<line x1="230" x2="230" y1="86" y2="244" class="axis"/></svg>

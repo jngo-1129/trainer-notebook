@@ -1,0 +1,806 @@
+<!doctype html>
+<!-- Trainer Notebook UI. Safety: talks only to this app's own 127.0.0.1 API. No external requests. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainer Notebook</title>
+<style>
+:root { --bg:#f7f7f8; --fg:#1d1d20; --muted:#6b6b76; --card:#fff; --line:#dcdce2; --accent:#2f6fdb; --accent2:#d9822b; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16171a; --fg:#e6e6ea; --muted:#9a9aa6; --card:#202227; --line:#34363d; --accent:#6ea0ff; --accent2:#f0a257; } }
+:root[data-theme="dark"] { --bg:#16171a; --fg:#e6e6ea; --muted:#9a9aa6; --card:#202227; --line:#34363d; --accent:#6ea0ff; --accent2:#f0a257; }
+#search { margin-left:auto; position:relative; } #search input { width:220px; }
+#sResults { position:absolute; right:0; top:34px; z-index:5; width:360px; max-height:60vh; overflow:auto; background:var(--card); border:1px solid var(--line); border-radius:8px; }
+#sResults div { padding:6px 10px; cursor:pointer; border-bottom:1px solid var(--line); } #sResults div:hover { background:var(--bg); }
+.pill { display:inline-block; padding:1px 8px; border-radius:10px; font-size:12px; border:1px solid var(--line); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; } .grid .card { margin:0; }
+* { box-sizing: border-box; }
+body { margin:0; font:14px/1.45 system-ui, sans-serif; background:var(--bg); color:var(--fg); }
+header { display:flex; gap:4px; flex-wrap:wrap; align-items:center; padding:10px 16px; border-bottom:1px solid var(--line); background:var(--card); }
+header b { margin-right:12px; }
+nav button { background:none; border:0; padding:6px 10px; border-radius:6px; color:var(--muted); cursor:pointer; font:inherit; }
+nav button.on { background:var(--bg); color:var(--fg); font-weight:600; }
+main { max-width:1000px; margin:0 auto; padding:16px; }
+section { display:none; } section.on { display:block; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; }
+label { display:inline-flex; flex-direction:column; gap:2px; margin:0 10px 8px 0; font-size:12px; color:var(--muted); }
+input, select, button { font:inherit; color:var(--fg); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:5px 8px; }
+button { cursor:pointer; } button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+input[type=number] { width:90px; } .wide { width:320px; max-width:100%; }
+table { border-collapse:collapse; width:100%; } td, th { text-align:left; padding:4px 6px; border-bottom:1px solid var(--line); }
+.muted { color:var(--muted); font-size:12px; } .big { font-size:22px; font-weight:600; }
+.stats { display:flex; flex-wrap:wrap; gap:18px; } .err { color:#d33; }
+svg text { fill:var(--muted); font-size:11px; }
+.shot { max-width:100%; max-height:420px; border:1px solid var(--line); border-radius:6px; }
+</style>
+</head>
+<body>
+<header><b>Trainer Notebook</b><nav id="tabs"></nav>
+  <span id="search"><input id="sQ" placeholder="Search cards, umas, skills, events" autocomplete="off"><div id="sResults" hidden></div></span>
+  <button id="themeBtn" title="Theme: auto / light / dark" style="margin-left:6px">◐</button></header>
+<main>
+
+<section id="pulls">
+  <div class="card calc">
+    <label>Pulls <input type="number" id="pN" value="100" min="0" max="2000"></label>
+    <label>…or carats <input type="number" id="pCarats" placeholder="auto"></label>
+    <label>+ tickets <input type="number" id="pTickets" value="0" min="0"></label>
+    <label>Rate-up % <input type="number" id="pRate" value="0.75" step="0.05"></label>
+    <label>Copies owned <input type="number" id="pOwned" value="0" min="0" max="5"></label>
+    <label>Spark points banked <input type="number" id="pPoints" value="0" min="0"></label>
+    <label>Spark at <input type="number" id="pSpark" value="200" min="0"></label>
+    <div class="muted">Community-documented Global rates: featured SSR 0.75% (check the banner's rate page if 2 cards are featured), 150 carats/pull, 200 spark points = 1 exchange. Assumes every exchange goes to the target.</div>
+  </div>
+  <div class="card"><div class="stats" id="pOut"></div></div>
+  <div class="card"><svg id="pChart" viewBox="0 0 700 260" width="100%"></svg>
+    <div class="muted"><span style="color:var(--accent)">■</span> P(≥1 copy) &nbsp; <span style="color:var(--accent2)">■</span> P(MLB) &nbsp; dashed = your pulls</div></div>
+  <div class="card"><b>Banners: pull or save?</b> <span class="muted">Uses your carats, tickets, Collection and the income below.</span>
+    <div id="bOut"></div><div id="bAdvice"></div></div>
+  <div class="card"><b>Carat income</b><br>
+    <label>Carats now <input type="number" data-kv="carats"></label>
+    <label>Daily carats <input type="number" data-kv="daily_carats" id="incDaily"></label>
+    <label>Weekly extra <input type="number" data-kv="weekly_extra_carats" id="incWeekly"></label>
+    <label>Monthly pass <select data-kv="monthly_pass"><option value="0">no</option><option value="1">yes</option></select></label>
+    <label>Project to <input type="date" id="incDate"></label>
+    <label>&nbsp;<button onclick="projectIncome()">Project</button></label>
+    <div id="incOut"></div><div class="muted" id="incNote"></div></div>
+</section>
+
+<section id="tiers">
+  <div class="card">
+    <label>Show <select id="tKind"><option value="support">Support cards</option><option value="uma">Umas</option><option value="skill">Skills (community)</option></select></label>
+    <label>Limit break <select id="tLb"><option value="4">MLB (4)</option><option value="3">3</option><option value="2">2</option><option value="1">1</option><option value="0">0</option><option value="own">My LB</option></select></label>
+    <label>Type <select id="tType"><option value="">All</option><option>Speed</option><option>Stamina</option><option>Power</option><option>Guts</option><option>Wit</option><option>Friend</option><option>Group</option></select></label>
+    <label>Distance <select id="tDist"><option>short</option><option>mile</option><option selected>medium</option><option>long</option></select></label>
+    <label>Search <input id="tQ"></label>
+    <label>Owned only <input type="checkbox" id="tOwned"></label>
+    <div class="muted" id="tNote"></div>
+  </div>
+  <div class="card"><table id="tTable"></table></div>
+</section>
+
+<section id="deck">
+  <div class="card">
+    <label>Champions Meeting <select id="dCm"><option value="">— custom —</option></select></label>
+    <label>Trainee <input id="dUma" class="wide" list="dl-uma"></label>
+    <label>Distance <select id="dDist"><option>short</option><option>mile</option><option selected>medium</option><option>long</option></select></label>
+    <label>Length (m) <input type="number" id="dM" placeholder="auto"></label>
+    <label>Style <select id="dStyle"><option value="">auto</option><option>front</option><option>pace</option><option>late</option><option>end</option></select></label>
+    <label>Surface <select id="dSurf"><option>turf</option><option>dirt</option></select></label>
+    <label>Borrow slot <input type="checkbox" id="dBorrow" checked></label>
+    <label>&nbsp;<button class="primary" onclick="buildDeck()">Build deck</button></label>
+    <input type="hidden" id="dTrack">
+    <div class="muted">Uses your Collection (support LBs) and Veterans (parents). Scores come from an approximate model; see Settings to tune it.</div>
+  </div>
+  <div id="dOut"></div>
+</section>
+
+<section id="training">
+  <div class="card"><b>Turn helper</b> <span class="muted">Type what the game shows on each training button. You make the move.</span><br>
+    <label>Turn <input type="number" id="trTurn" value="1" min="1" max="78"></label>
+    <label>Energy <input type="number" id="trEnergy" value="100" min="0" max="120"></label>
+    <label>Mood <select id="trMood"><option value="0">Awful</option><option value="1">Bad</option><option value="2">Normal</option><option value="3">Good</option><option value="4" selected>Great</option></select></label>
+    <label>Target distance <select id="trDist"><option>short</option><option>mile</option><option selected>medium</option><option>long</option></select></label>
+    <label>Race available <input type="checkbox" id="trRace"></label><br>
+    <span id="trStats"></span>
+    <table id="trOpts"></table>
+    <button class="primary" onclick="scoreTurn()">Recommend</button>
+    <div id="trOut"></div>
+  </div>
+  <div class="card"><b>Event choice</b><br>
+    <label>Event name <input id="evQ" class="wide" placeholder="type part of the event title"></label>
+    <div id="evOut"></div>
+  </div>
+  <div class="card"><b>Race schedule</b><br>
+    <label>Trainee <input id="rpUma" class="wide" list="dl-uma"></label>
+    <label>Grades <select id="rpGrade"><option value="100">G1 only</option><option value="200">G1–G2</option><option value="300" selected>G1–G3</option><option value="400">+ OP</option></select></label>
+    <label>Min aptitude <select id="rpApt"><option>A</option><option selected>B</option><option>C</option></select></label>
+    <label>&nbsp;<button onclick="racePlan()">Plan</button></label>
+    <div id="rpOut"></div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="card">
+    <label>Skill points <input type="number" id="skSp" value="1000"></label>
+    <label>Distance <select id="skDist"><option>short</option><option>mile</option><option selected>medium</option><option>long</option></select></label>
+    <label>Length (m) <input type="number" id="skM" placeholder="auto"></label>
+    <label>Style <select id="skStyle"><option>front</option><option selected>pace</option><option>late</option><option>end</option></select></label>
+    <label>Surface <select id="skSurf"><option>turf</option><option>dirt</option></select></label>
+    <label>Track <select id="skTrack"><option value="">any</option></select></label>
+    <label>Turns <select id="skDir"><option value="">any</option><option value="right">right</option><option value="left">left</option></select></label><br>
+    <label>Add skill <input id="skAdd" class="wide" list="dl-skills" placeholder="skill name"></label>
+    <label>Hint lv <select id="skHint"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></label>
+    <label>&nbsp;<button onclick="addSkill()">Add</button></label>
+    <table id="skList"></table>
+    <button class="primary" onclick="optimizeSkills()">Optimize</button>
+    <div class="muted">Knapsack over approximate "lengths gained" per skill. Gold/◎ skills include their base skill's cost unless you tick "learned".</div>
+    <div id="skOut"></div>
+  </div>
+</section>
+
+<section id="dashboard">
+  <div id="dbAlerts"></div>
+  <div class="grid" id="dbGrid"><div class="card">Loading dashboard…</div></div>
+</section>
+
+<section id="tools">
+  <div class="grid">
+    <div class="card"><b>Daily / weekly checklist</b> <span class="muted" id="ckReset"></span>
+      <div id="ckList"></div>
+      <label>New item <input id="ckText"></label>
+      <label>Resets <select id="ckFreq"><option>daily</option><option>weekly</option></select></label>
+      <label>&nbsp;<button onclick="addCheck()">Add</button></label>
+      <div class="muted">Global resets at 15:00 UTC (00:00 JST); weekly on Sunday 15:00 UTC. Change in Settings.</div></div>
+    <div class="card"><b>Event planner & shop priorities</b>
+      <div id="plList"></div>
+      <label>Type <select id="plKind"><option value="event">Event</option><option value="shop">Shop item</option></select></label>
+      <label>Name / item <input id="plName"></label>
+      <label>Dates or currency <input id="plWhen" placeholder="e.g. 10-01..10-12 or Shop coins"></label>
+      <label>Priority <select id="plPri"><option>1</option><option selected>2</option><option>3</option></select></label>
+      <label>&nbsp;<button onclick="addPlan()">Add</button></label></div>
+  </div>
+  <div class="card"><b>Limit-break planner</b> <span class="muted">Where your next spare copy or LB item helps most (x0.3 if the card isn't in any best deck)</span><div id="lbOut"></div></div>
+  <div class="card"><b>Collection gaps</b> <span class="muted">Your best card of each type vs the top 3 on Global at MLB</span><div id="gapOut"></div></div>
+  <div class="card"><b>What if I pull…</b><br>
+    <label>Card or uma <input id="wiCard" class="wide" list="dl-any"></label>
+    <label>LB if support <select id="wiLb"><option>0</option><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+    <label>&nbsp;<button onclick="whatIf()">Preview</button></label><div id="wiOut"></div></div>
+  <div class="card"><b>Target stats & race simulator</b> <span class="muted">Approximate: idealized race, no positioning/skills except your skill-lengths estimate</span><br>
+    <label>Distance (m) <input type="number" id="rsDist" value="2400"></label>
+    <label>Style <select id="rsStyle"><option>front</option><option selected>pace</option><option>late</option><option>end</option></select></label>
+    <label>Dist apt <select id="rsDA"><option>S</option><option selected>A</option><option>B</option><option>C</option></select></label>
+    <label>Surface apt <select id="rsSA"><option>S</option><option selected>A</option><option>B</option><option>C</option></select></label>
+    <label>Recovery skills (% HP) <input type="number" id="rsHeal" value="0"></label>
+    <label>Skill lengths <input type="number" id="rsSkill" value="0" step="0.5"></label><br>
+    <span id="rsStats"></span>
+    <button onclick="targetsCalc()">Target stats</button> <button class="primary" onclick="raceSim()">Simulate vs typical meta runner</button>
+    <div id="rsOut"></div></div>
+  <div class="card"><b>Champions Meeting prep</b><br>
+    <label>Cup <select id="cmSel"></select></label> <label>&nbsp;<button onclick="cmPrep()">Prepare</button></label><div id="cmOut"></div></div>
+  <div class="card"><b>Run log</b> <span class="muted">Log finished careers; after 3+ per distance it suggests weight changes</span><br>
+    <label>Trainee <input id="rlUma" class="wide" list="dl-uma"></label>
+    <label>Distance <select id="rlDist"><option>short</option><option>mile</option><option selected>medium</option><option>long</option></select></label>
+    <label>Rating <input type="number" id="rlRating"></label><br>
+    <span id="rlStats"></span>
+    <label>Deck (from last Deck build) <input type="checkbox" id="rlDeck" checked></label>
+    <label>&nbsp;<button onclick="addRun()">Save run</button></label>
+    <div id="rlOut"></div><div id="rlTune"></div></div>
+  <div class="card"><b>Pull history</b><br>
+    <label>Banner <input id="phBanner"></label>
+    <label>Kind <select id="phKind"><option>support</option><option>uma</option></select></label>
+    <label>Pulls <input type="number" id="phPulls" value="10"></label>
+    <label>SSRs <input type="number" id="phSsr" value="0"></label>
+    <label>Featured copies <input type="number" id="phTarget" value="0"></label>
+    <label>&nbsp;<button onclick="addPull()">Log</button></label>
+    <div id="phLuck"></div><div id="phOut"></div></div>
+</section>
+
+<section id="collection">
+  <div class="card">
+    <label>Type <select id="oKind"><option value="support">Support card</option><option value="uma">Uma</option></select></label>
+    <label>Card <input id="oCard" class="wide" list="dl-support" placeholder="type to search"></label>
+    <label>Limit break / stars <select id="oLevel"></select></label>
+    <label>&nbsp;<button class="primary" onclick="addOwned()">Save</button></label>
+    <span id="oErr" class="err"></span>
+  </div>
+  <div class="card"><b>Inventory</b><br>
+    <label>Carats <input type="number" data-kv="carats"></label>
+    <label>Uma tickets <input type="number" data-kv="tickets_uma"></label>
+    <label>Support tickets <input type="number" data-kv="tickets_support"></label>
+  </div>
+  <div class="card"><table id="oTable"></table></div>
+</section>
+
+<section id="veterans">
+  <div class="card">
+    <label>Uma <input id="vUma" class="wide" list="dl-uma"></label>
+    <label>Rating <input type="number" id="vRating"></label>
+    <label>Locked / in use <input type="checkbox" id="vLocked"></label>
+    <div id="vSparks"></div>
+    <button onclick="addSparkRow()">+ spark</button>
+    <button class="primary" onclick="saveVet()">Save veteran</button> <span id="vErr" class="err"></span>
+    <input type="hidden" id="vId">
+  </div>
+  <div class="card"><table id="vTable"></table>
+    <div class="muted">Deleting here only removes the record from this app. Delete veterans in the game yourself.</div></div>
+  <div class="card"><b>Cleanup advisor</b> <span class="muted">Ranks veterans from keep to trash. It never deletes anything: you do that in the game.</span><br>
+    <label>Free up slots <input type="number" id="vcFree" value="0" min="0"></label>
+    <label>Umas you'll train next <input id="vcNext" class="wide" list="dl-uma" placeholder="add a trainee, Enter"></label>
+    <label>&nbsp;<button class="primary" onclick="vetCleanup()">Rank</button></label>
+    <div id="vcNextList" class="muted"></div>
+    <div id="vcOut"></div></div>
+  <div class="card"><b>Parent pair planner</b> <span class="muted">Pick a trainee and the sparks you want (total stars across both parents)</span><br>
+    <label>Trainee <input id="ppUma" class="wide" list="dl-uma"></label>
+    <label>Spark <input id="ppSpark" list="dl-sparks-all"></label>
+    <label>Stars wanted <select id="ppStars"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+    <label>&nbsp;<button onclick="ppAdd()">Add</button></label>
+    <div id="ppWants" class="muted"></div>
+    <button class="primary" onclick="ppPlan()">Find pairs</button>
+    <div id="ppOut"></div><div id="ppSaved"></div></div>
+  <div class="card"><b>Team Trials lineup</b> <span class="muted">3 per category from your veterans (rating × base aptitude)</span>
+    <button onclick="ttLineup()">Suggest</button><div id="ttOut"></div></div>
+</section>
+
+<section id="import">
+  <div class="card">
+    <label>Screenshot folder <input id="iDir" class="wide" data-kv="screenshot_dir" placeholder="default: ./screenshots"></label>
+    <label>&nbsp;<button onclick="loadImports()">Refresh</button></label>
+    <label>Auto-check every 30 s <input type="checkbox" id="iAuto"></label>
+    <div class="muted">Take screenshots yourself (Steam F12 / Win+PrtScn) of your support list, uma list, veteran sparks, and inventory, then point this at the folder. Nothing is saved until you click a suggestion.</div>
+    <div id="iList"></div>
+  </div>
+  <div class="card" id="iView" hidden></div>
+</section>
+
+<section id="settings">
+  <div class="card"><b>Game data</b><div id="dMeta"></div><div id="dCurated" class="muted"></div><br>
+    <button class="primary" onclick="updateData(this)">Update game data</button>
+    <div class="muted">Anonymous download of public data from GameTora and UmaTools. Never contacts game servers.</div></div>
+  <div class="card"><b>Model weights</b> <span class="muted">JSON overrides merged over the defaults. Every advisor uses them. Example: {"priority": {"long": {"stamina": 1.2}}, "advisor": {"fail_cost": 80}}</span>
+    <textarea id="wOver" rows="6" style="width:100%;font-family:monospace"></textarea>
+    <button class="primary" onclick="saveWeights()">Save weights</button> <span id="wMsg"></span>
+    <details><summary class="muted">Defaults</summary><pre id="wDef" style="white-space:pre-wrap"></pre></details></div>
+  <div class="card"><b>Display & resets</b><br>
+    <label>Names <select id="setNames"><option value="en">English</option><option value="jp">Japanese</option></select></label>
+    <label>Daily reset (UTC hour) <input type="number" data-kv="reset_utc_hour" placeholder="15" min="0" max="23"></label>
+    <label>Weekly reset day <select data-kv="weekly_reset_day"><option value="">Sunday (default)</option><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option></select></label>
+    <div class="muted">Hotkey + always-on-top lookup window: run <code>.venv\Scripts\pythonw lookup.py</code> (Ctrl+Alt+U). It's a separate window of this app and never sends keys to the game.</div></div>
+  <div class="card"><b>Backup</b><br>
+    <a href="/api/export" download><button>Export JSON backup</button></a>
+    <label>Restore from backup <input type="file" id="bkFile" accept=".json"></label>
+    <div class="muted">Restore replaces your whole profile with the file's contents. Export first if unsure.</div>
+    <details><summary>Change history</summary><div id="histOut"></div></details></div>
+</section>
+
+</main>
+<datalist id="dl-support"></datalist><datalist id="dl-skills"></datalist><datalist id="dl-any"></datalist><datalist id="dl-sparks-all"></datalist><datalist id="dl-uma"></datalist>
+<datalist id="dl-blue"></datalist><datalist id="dl-pink"></datalist><datalist id="dl-green"></datalist><datalist id="dl-white"></datalist>
+<script>
+const $ = s => document.querySelector(s);
+const api = async (path, method = 'GET', body) => {
+  const r = await fetch('/api/' + path, { method, headers: {'Content-Type': 'application/json'}, body: body && JSON.stringify(body) });
+  const j = r.headers.get('content-type')?.includes('json') ? await r.json() : null;
+  if (!r.ok) throw new Error(j?.detail || r.statusText);
+  return j;
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`);
+const pct = x => (x * 100).toFixed(x > 0.999 && x < 1 ? 2 : 1) + '%';
+let DB = { support: [], uma: [], sparks: {} }, byLabel = {}, byId = {}, skillByName = {};
+const lsGet = k => { try { return localStorage[k] } catch { return null } }, lsSet = (k, v) => { try { localStorage[k] = v } catch {} };
+const JP = lsGet('names') === 'jp';
+const labelOf = c => JP && c.name_jp ? `${c.title_jp || c.title} ${c.name_jp}` : `${c.title} ${c.name}`;
+const THEMES = ['auto', 'light', 'dark'];
+const applyTheme = t => { t === 'auto' ? document.documentElement.removeAttribute('data-theme') : document.documentElement.setAttribute('data-theme', t); $('#themeBtn').title = 'Theme: ' + t; };
+applyTheme(lsGet('theme') || 'auto');
+$('#themeBtn').onclick = () => { const t = THEMES[(THEMES.indexOf(lsGet('theme') || 'auto') + 1) % 3]; lsSet('theme', t); applyTheme(t); };
+
+// tabs
+const TABS = { dashboard: 'Dashboard', tiers: 'Tiers', deck: 'Deck', training: 'Training', skills: 'Skills', pulls: 'Pulls', collection: 'Collection', veterans: 'Veterans', tools: 'Tools', import: 'Import', settings: 'Settings' };
+$('#tabs').innerHTML = Object.entries(TABS).map(([id, t]) => `<button data-tab="${id}">${t}</button>`).join('');
+const show = id => { document.querySelectorAll('section, nav button').forEach(e => e.classList.toggle('on', e.id === id || e.dataset.tab === id)); try { localStorage.tab = id } catch {} };
+$('#tabs').onclick = e => e.target.dataset.tab && show(e.target.dataset.tab);
+show((() => { try { const t = localStorage.tab; return TABS[t] ? t : null } catch {} })() || 'dashboard');
+
+// game data
+async function loadData() {
+  DB = await api('data');
+  for (const k of ['support', 'uma']) {
+    byLabel[k] = Object.fromEntries(DB[k].map(c => [labelOf(c), c]));
+    byId[k] = Object.fromEntries(DB[k].map(c => [c.id, c]));
+    $('#dl-' + k).innerHTML = DB[k].map(c => `<option value="${esc(labelOf(c))}">${c.type ? c.type + ' ' : ''}${'★'.repeat(c.rarity)}${c.release_gl ? '' : ' (JP only)'}</option>`).join('');
+  }
+  for (const [color, names] of Object.entries(DB.sparks)) $('#dl-' + color).innerHTML = names.map(n => `<option value="${esc(n)}">`).join('');
+  $('#dl-sparks-all').innerHTML = Object.entries(DB.sparks).flatMap(([color, names]) => names.map(n => `<option value="${esc(n)}">${color}</option>`)).join('');
+  $('#dl-any').innerHTML = ['support', 'uma'].flatMap(k => DB[k].filter(c => c.global || !c.release_gl).map(c => `<option value="${esc(labelOf(c))}">${k}${c.global ? '' : ' (not on Global yet)'}</option>`)).join('');
+  const m = DB.meta, cur = DB.curated || {};
+  $('#dMeta').innerHTML = m ? `Retrieved ${esc(m.retrieved)} from <b>${esc(m.source)}</b>: ${DB.support.length} support cards, ${DB.uma.length} umas.` : '<b>No game data yet.</b> Click Update.';
+  $('#dCurated').innerHTML = cur.retrieved ? `Community tiers, banners, cups and income: data/meta.json, researched ${esc(cur.retrieved)} from ${(cur.sources || []).map(x => esc(x.url)).join(', ')}` : 'No data/meta.json (community tiers) yet.';
+  skillByName = {}; for (const [id, n] of Object.entries(DB.skills || {})) skillByName[n] ??= +id;
+  $('#dl-skills').innerHTML = Object.keys(skillByName).map(n => `<option value="${esc(n)}">`).join('');
+  $('#skTrack').innerHTML = '<option value="">any</option>' + Object.entries(DB.tracks || {}).map(([id, n]) => `<option value="${id}">${esc(n)}</option>`).join('');
+  $('#dCm').innerHTML = '<option value="">— custom —</option>' + (cur.champions_meeting || []).map((c, i) => `<option value="${i}">${esc(c.name)} · ${esc(c.track)} ${c.distance_m}m ${esc(c.surface)}${c.estimate ? ' (estimate)' : ''}</option>`).join('');
+  const inc = cur.income || {};
+  $('#incDaily').placeholder = inc.daily_carats ?? ''; $('#incWeekly').placeholder = inc.weekly_carats != null ? Math.max(0, inc.weekly_carats - 7 * (inc.daily_carats || 0)) : '';
+  $('#incNote').textContent = inc.notes ? `Defaults (blank fields): ${inc.notes}` : '';
+}
+async function updateData(btn) { btn.disabled = true; btn.textContent = 'Updating…'; try { await api('data/update', 'POST'); await loadData(); await loadProfile(); } catch (e) { alert(e.message) } btn.disabled = false; btn.textContent = 'Update game data'; }
+
+// pull calculator
+let pTimer;
+document.querySelectorAll('#pulls .calc input').forEach(i => i.oninput = () => { clearTimeout(pTimer); pTimer = setTimeout(calcPulls, 150); });
+async function calcPulls() {
+  const carats = $('#pCarats').value;
+  if (carats !== '') $('#pN').value = Math.floor(+carats / 150) + (+$('#pTickets').value || 0);
+  const q = new URLSearchParams({ n: $('#pN').value || 0, rate: ($('#pRate').value || 0) / 100, owned: $('#pOwned').value || 0, points: $('#pPoints').value || 0, spark_at: $('#pSpark').value || 0 });
+  let s; try { s = await api('pulls?' + q) } catch (e) { $('#pOut').innerHTML = `<span class="err">${esc(e.message)}</span>`; return; }
+  const need = Math.max(0, 5 - (+$('#pOwned').value || 0));
+  const stat = (label, v) => `<div><div class="muted">${label}</div><div class="big">${v}</div></div>`;
+  $('#pOut').innerHTML = stat('P(≥1 copy)', pct(s.p_at_least[1])) + stat(`P(MLB, need ${need} more)`, pct(s.p_mlb))
+    + stat('Expected copies', s.expected_copies.toFixed(2)) + stat('Sparks', s.sparks) + stat('P(any SSR)', pct(s.p_any_ssr))
+    + stat('Carats', s.carats.toLocaleString()) + stat('Pulls for 50% / 90% MLB', `${s.pulls_for_50_mlb ?? '—'} / ${s.pulls_for_90_mlb ?? '—'}`)
+    + `<table style="margin-top:6px">${[1,2,3,4,5].map(k => `<tr><td>P(≥${k} copies)</td><td>${pct(s.p_at_least[k])}</td></tr>`).join('')}</table>`;
+  drawChart(s);
+}
+function drawChart(s) {
+  const W = 700, H = 260, L = 40, B = 24, maxN = s.curve.at(-1).n || 1;
+  const x = n => L + (W - L - 10) * n / maxN, y = p => 10 + (H - B - 10) * (1 - p);
+  const line = (key, color) => `<polyline fill="none" stroke="${color}" stroke-width="2" points="${s.curve.map(c => `${x(c.n)},${y(c[key])}`).join(' ')}"/>`;
+  let g = '';
+  for (const p of [0, .25, .5, .75, 1]) g += `<line x1="${L}" x2="${W-10}" y1="${y(p)}" y2="${y(p)}" stroke="var(--line)"/><text x="4" y="${y(p)+4}">${p*100}%</text>`;
+  for (let n = 0; n <= maxN; n += 100) g += `<text x="${x(n)-8}" y="${H-6}">${n}</text>`;
+  g += `<line x1="${x(Math.min(s.pulls, maxN))}" x2="${x(Math.min(s.pulls, maxN))}" y1="10" y2="${H-B}" stroke="var(--muted)" stroke-dasharray="4 4"/>`;
+  $('#pChart').innerHTML = g + line('p1', 'var(--accent)') + line('pmlb', 'var(--accent2)');
+}
+
+// profile: collection, inventory, veterans
+let PROFILE = { owned: [], veterans: [], kv: {} };
+async function loadProfile() {
+  PROFILE = await api('profile');
+  document.querySelectorAll('[data-kv]').forEach(i => i.value = PROFILE.kv[i.dataset.kv] ?? '');
+  $('#oTable').innerHTML = '<tr><th>Card</th><th>Type</th><th>LB / ★</th><th></th></tr>' + PROFILE.owned.map(o => {
+    const c = byId[o.kind]?.[o.id], opts = o.kind === 'support' ? [0,1,2,3,4] : [1,2,3,4,5];
+    return `<tr><td>${esc(c ? labelOf(c) : '#' + o.id)}</td><td>${o.kind === 'support' ? esc(c?.type) : 'Uma'}</td>
+      <td><select onchange="setOwned('${o.kind}',${o.id},this.value)">${opts.map(v => `<option ${v === o.level ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
+      <td><button onclick="delOwned('${o.kind}',${o.id})">remove</button></td></tr>`;
+  }).join('');
+  const flag = (v, f, t) => `<input type="checkbox" title="${t}" ${v[f] ? 'checked' : ''} onchange="vetFlag(${v.id},'${f}',this.checked)">`;
+  $('#vTable').innerHTML = '<tr><th>#</th><th>Uma</th><th>Rating</th><th>Sparks</th><th title="locked in game">Lock</th><th title="protect in this app">Pin</th><th title="in TT/CM lineup">Team</th><th title="rental/profile slot">Rental</th><th></th></tr>' + PROFILE.veterans.map(v =>
+    `<tr><td class="muted">${v.id}</td><td>${esc(byId.uma?.[v.card_id] ? labelOf(byId.uma[v.card_id]) : '#' + v.card_id)}</td><td>${v.rating ?? ''}</td>
+     <td>${v.sparks.map(s => `<span style="color:${{blue:'#3b82f6',pink:'#e05a9a',green:'#2fa36b',white:'var(--muted)'}[s.color]}">${esc(s.name)} ${'★'.repeat(s.stars)}</span>`).join(', ')}</td>
+     <td>${flag(v, 'locked', 'locked in game')}</td><td>${flag(v, 'pinned', 'protect in this app')}</td><td>${flag(v, 'lineup', 'in a Team Trials / CM lineup')}</td><td>${flag(v, 'rental', 'rental / profile slot')}</td>
+     <td><button onclick="editVet(${v.id})">edit</button> <button onclick="delVet(${v.id})">remove</button></td></tr>`).join('');
+}
+const vetFlag = (id, flag, on) => api(`veterans/${id}/flag`, 'POST', { flag, on }).then(loadProfile).catch(e => alert(e.message));
+const setOwned = (kind, id, level) => api('owned', 'PUT', { kind, id, level: +level }).then(loadProfile).catch(e => alert(e.message));
+const delOwned = (kind, id) => api(`owned/${kind}/${id}`, 'DELETE').then(loadProfile);
+const levelOpts = () => $('#oLevel').innerHTML = ($('#oKind').value === 'support' ? ['0 LB','1 LB','2 LB','3 LB','4 LB (MLB)'] : ['1★','2★','3★','4★','5★'])
+  .map((t, i) => `<option value="${$('#oKind').value === 'support' ? i : i + 1}">${t}</option>`).join('');
+$('#oKind').onchange = () => { $('#oCard').setAttribute('list', 'dl-' + $('#oKind').value); levelOpts(); };
+levelOpts();
+function addOwned() {
+  const kind = $('#oKind').value, c = byLabel[kind]?.[$('#oCard').value];
+  if (!c) { $('#oErr').textContent = 'Pick a card from the list.'; return; }
+  $('#oErr').textContent = ''; $('#oCard').value = '';
+  setOwned(kind, c.id, $('#oLevel').value);
+}
+document.querySelectorAll('[data-kv]').forEach(i => i.onchange = () => api('kv', 'PUT', { key: i.dataset.kv, value: i.value }).then(i.id === 'iDir' ? loadImports : null).catch(e => alert(e.message)));
+
+function addSparkRow(s = { color: 'blue', name: '', stars: 1 }) {
+  const d = document.createElement('div');
+  d.innerHTML = `<select class="sc">${['blue','pink','green','white'].map(c => `<option ${c === s.color ? 'selected' : ''}>${c}</option>`).join('')}</select>
+    <input class="sn wide" list="dl-${s.color}" value="${esc(s.name)}"> <select class="ss">${[1,2,3].map(n => `<option ${n === s.stars ? 'selected' : ''}>${n}</option>`).join('')}</select>★
+    <button onclick="this.parentNode.remove()">×</button>`;
+  d.querySelector('.sc').onchange = e => d.querySelector('.sn').setAttribute('list', 'dl-' + e.target.value);
+  $('#vSparks').append(d);
+}
+function editVet(id) {
+  const v = PROFILE.veterans.find(v => v.id === id);
+  $('#vId').value = id; $('#vUma').value = byId.uma[v.card_id] ? labelOf(byId.uma[v.card_id]) : '';
+  $('#vRating').value = v.rating ?? ''; $('#vLocked').checked = !!v.locked;
+  $('#vSparks').innerHTML = ''; v.sparks.forEach(addSparkRow); show('veterans');
+}
+async function saveVet() {
+  const c = byLabel.uma[$('#vUma').value];
+  if (!c) { $('#vErr').textContent = 'Pick an uma from the list.'; return; }
+  const sparks = [...$('#vSparks').children].map(d => ({ color: d.querySelector('.sc').value, name: d.querySelector('.sn').value, stars: +d.querySelector('.ss').value })).filter(s => s.name);
+  const prev = PROFILE.veterans.find(v => v.id === +$('#vId').value) || {};
+  try { await api('veterans', 'POST', { id: +$('#vId').value || null, card_id: c.id, rating: +$('#vRating').value || null, locked: $('#vLocked').checked,
+    pinned: prev.pinned, lineup: prev.lineup, rental: prev.rental, sparks }); }
+  catch (e) { $('#vErr').textContent = e.message; return; }
+  $('#vErr').textContent = ''; $('#vId').value = ''; $('#vUma').value = ''; $('#vRating').value = ''; $('#vLocked').checked = false; $('#vSparks').innerHTML = '';
+  loadProfile();
+}
+const delVet = id => confirm('Remove this veteran from Trainer Notebook? (This does not touch the game.)') && api('veterans/' + id, 'DELETE').then(loadProfile);
+
+// screenshot import
+async function loadImports() {
+  const r = await api('import');
+  $('#iList').innerHTML = `<p class="muted">${esc(r.folder)} ${r.error ? `<span class="err">${esc(r.error)}</span>` : ''}</p>`
+    + (r.new.length ? r.new.map(n => `<button onclick="readShot('${encodeURIComponent(n).replace(/'/g, '%27')}')">${esc(n)}</button> `).join('') : '<span class="muted">No new screenshots.</span>');
+}
+async function readShot(n) {
+  const v = $('#iView'); v.hidden = false;
+  v.innerHTML = `<img class="shot" src="/api/import/${n}/image"><p>Reading…</p>`;
+  let r; try { r = await api(`import/${n}`, 'POST') } catch (e) { v.innerHTML += `<p class="err">${esc(e.message)}</p>`; return; }
+  const act = (m, i) => m.kind === 'support' ? `<select id="lv${i}">${[0,1,2,3,4].map(l => `<option>${l}</option>`).join('')}</select> LB <button onclick="setOwned('support',${m.id},$('#lv${i}').value)">save card</button>`
+    : m.kind === 'uma' ? `<select id="lv${i}">${[1,2,3,4,5].map(l => `<option>${l}</option>`).join('')}</select>★ <button onclick="setOwned('uma',${m.id},$('#lv${i}').value)">save uma</button>`
+    : m.kind === 'spark' ? `<select id="lv${i}">${[1,2,3].map(l => `<option>${l}</option>`).join('')}</select>★ <button onclick='addSparkRow({color:"${m.color}",name:${esc(JSON.stringify(m.name))},stars:+$("#lv${i}").value})'>add to veteran form</button>`
+    : '';
+  v.innerHTML = `<img class="shot" src="/api/import/${n}/image">
+    <p><b>Suggestions</b> <span class="muted">(OCR reads text only; set limit break / stars yourself)</span></p>
+    <table>${r.matches.map((m, i) => `<tr><td>${esc(m.label)}</td><td class="muted">${esc(m.kind)} · ${m.score}</td><td>${act(m, i)}</td></tr>`).join('') || '<tr><td class="muted">No card/uma/spark names recognised.</td></tr>'}</table>
+    <p><b>Numbers</b></p><table>${r.numbers.map(x => `<tr><td>${esc(x.label)}</td><td>${x.value}</td><td>${['carats','tickets_uma','tickets_support'].map(k => `<button onclick="api('kv','PUT',{key:'${k}',value:'${x.value}'}).then(loadProfile)">as ${k}</button>`).join(' ')}</td></tr>`).join('')}</table>
+    <details><summary class="muted">Raw OCR text</summary><pre>${esc(r.lines.join('\n'))}</pre></details>
+    <button onclick="shotEvents('${n}')">Look up training events in this screenshot</button> <div id="iEvents"></div>
+    <button class="primary" onclick="api('import/${n}/done','POST').then(()=>{$('#iView').hidden=true;loadImports()})">Mark reviewed</button>`;
+}
+async function shotEvents(n) {
+  $('#iEvents').innerHTML = '<p>Reading…</p>';
+  const r = await api(`import/${n}/events`, 'POST').catch(e => { $('#iEvents').innerHTML = `<p class="err">${esc(e.message)}</p>`; return null; });
+  if (r) $('#iEvents').innerHTML = eventHtml(r) || '<p class="muted">No event title recognised.</p>';
+}
+
+// ---------- tiers ----------
+const STATS = ['speed', 'stamina', 'power', 'guts', 'wit'];
+const TIER_COLOR = { S: '#e0a100', A: '#2fa36b', B: '#3b82f6', C: 'var(--muted)', '—': 'var(--muted)' };
+const tierTag = t => t ? `<b style="color:${TIER_COLOR[t] || 'inherit'}">${esc(t)}</b>` : '';
+let TIERS = {};
+async function loadTiers() {
+  const kind = $('#tKind').value;
+  TIERS[kind] ??= await api('tiers/' + kind).catch(e => { $('#tTable').innerHTML = `<tr><td class="err">${esc(e.message)}</td></tr>`; return null; });
+  const rows = TIERS[kind]; if (!rows) return;
+  const q = $('#tQ').value.toLowerCase(), mine = Object.fromEntries(PROFILE.owned.filter(o => o.kind === kind).map(o => [o.id, o.level]));
+  const cur = DB.curated || {};
+  $('#tNote').innerHTML = `<b>Model</b> = this app's approximate formula (tune in Settings). <b>Community</b> = ${esc((cur.sources || [])[0]?.url || 'data/meta.json')} (researched ${esc(cur.retrieved || '?')}). They can disagree: the model can't see scenario-specific mechanics.`;
+  const match = r => (!q || (r.title + ' ' + r.name).toLowerCase().includes(q)) && (!$('#tOwned').checked || r.id in mine);
+  const community = r => r.community ? tierTag(r.community.tier) + ` <span class="muted">${esc(r.community.reason)}</span>` : '';
+  let html = '';
+  if (kind === 'support') {
+    const lbSel = $('#tLb').value, type = $('#tType').value;
+    html = '<tr><th>Model</th><th>Score</th><th>Community</th><th>Card</th><th>Type</th><th>Mine</th><th>Why</th></tr>' + rows
+      .filter(r => (!type || r.type === type) && match(r))
+      .map(r => [r, lbSel === 'own' ? (mine[r.id] ?? 0) : +lbSel])
+      .sort((a, b) => (a[0].tiers[a[1]] === '—') - (b[0].tiers[b[1]] === '—') || b[0].scores[b[1]] - a[0].scores[a[1]])
+      .map(([r, lb]) => `<tr><td>${tierTag(r.tiers[lb])}</td><td>${r.scores[lb]}</td><td>${community(r)}</td>
+        <td>${esc(r.title)} ${esc(r.name)}${r.rarity < 3 ? ` <span class="muted">${r.rarity === 2 ? 'SR' : 'R'}</span>` : ''}</td><td>${esc(r.type)}</td><td>${r.id in mine ? mine[r.id] + ' LB' : ''}</td>
+        <td class="muted" title="${esc(Object.entries(r.parts).map(([k, v]) => k + ': ' + v).join('\n'))}">${esc(r.why)}${r.notes.length ? '<br>' + esc(r.notes.join('; ')) : ''}</td></tr>`).join('');
+  } else if (kind === 'uma') {
+    const d = $('#tDist').value;
+    html = `<tr><th>Model (${d})</th><th>Score</th><th>Community</th><th>Uma</th><th>Apt</th><th>Best style</th><th>Growth</th><th>Unique (lengths)</th></tr>` + rows
+      .filter(r => 'SA'.includes(r.by[d].apt) && match(r))
+      .sort((a, b) => b.by[d].score - a.by[d].score)
+      .map(r => `<tr><td>${tierTag(r.by[d].tier)}</td><td>${r.by[d].score}</td><td>${community(r)}</td>
+        <td>${esc(r.title)} ${esc(r.name)}${r.id in mine ? ' ✓' : ''}</td><td>${r.by[d].apt}</td><td>${r.by[d].style}</td>
+        <td class="muted">${Object.entries(r.by[d].growth).filter(([, v]) => v).map(([k, v]) => `${k} +${v}%`).join(', ')}</td><td>${r.by[d].unique_lengths}</td></tr>`).join('');
+  } else {
+    html = '<tr><th>Community</th><th>Skill</th><th>Why</th></tr>' + rows.filter(r => !q || String(r.name).toLowerCase().includes(q))
+      .map(r => `<tr><td>${tierTag(r.tier)}</td><td>${esc(r.name)}</td><td class="muted">${esc(r.reason)}</td></tr>`).join('');
+  }
+  $('#tTable').innerHTML = html;
+}
+document.querySelectorAll('#tiers select, #tiers input').forEach(e => e.oninput = loadTiers);
+
+// ---------- deck ----------
+$('#dCm').onchange = () => {
+  const c = (DB.curated?.champions_meeting || [])[$('#dCm').value]; if (!c) return;
+  $('#dDist').value = c.distance_cat; $('#dM').value = c.distance_m; $('#dSurf').value = c.surface;
+  $('#dTrack').value = Object.entries(DB.tracks || {}).find(([, n]) => n === c.track)?.[0] || '';
+};
+const share = (o, s) => Math.round(100 * o[s] / Math.max(1, STATS.reduce((a, k) => a + o[k], 0)));
+let LAST_DECK = [];
+const statRow = (vals, targets) => STATS.map(s => `<td>${vals[s]}${targets ? ` <span class="muted">/ ${targets[s]}</span>` : ''}</td>`).join('');
+async function buildDeck() {
+  const uma = byLabel.uma[$('#dUma').value];
+  $('#dOut').innerHTML = '<div class="card">Building…</div>';
+  let d; try {
+    d = await api('deck', 'POST', { uma_id: uma?.id, distance_cat: $('#dDist').value, distance_m: +$('#dM').value || null, style: $('#dStyle').value,
+      surface: $('#dSurf').value, track: $('#dTrack').value || null, borrow: $('#dBorrow').checked });
+  } catch (e) { $('#dOut').innerHTML = `<div class="card err">${esc(e.message)}</div>`; return; }
+  LAST_DECK = d.deck.map(c => c.id);
+  const t = WEIGHTS?.defaults?.targets?.[d.target.distance_cat];
+  $('#dOut').innerHTML = `<div class="card"><b>Best deck</b> · score ${d.score} <span class="muted">(${esc(d.target.distance_cat)} ${d.target.distance_m}m${d.target.style ? ' · ' + esc(d.target.style) : ''})</span>
+    ${d.deck.length < 6 ? `<p class="err">Only ${d.deck.length} usable cards: add more in Collection.</p>` : ''}
+    <table><tr><th>Card</th><th>Type</th><th>LB</th><th>Value</th></tr>${d.deck.map(c => `<tr><td>${esc(c.label)}${c.borrow ? ' <b>(borrow)</b>' : ''}</td><td>${esc(c.type)}</td><td>${c.lb}</td><td>${c.value}</td></tr>`).join('')}</table></div>
+    <div class="card"><b>What the deck adds</b> <span class="muted">(approx stat points from supports over one career${uma ? ', incl. trainee growth' : ''}; scenario and event gains come on top)</span>
+    <table><tr><th></th>${STATS.map(s => `<th>${s}</th>`).join('')}</tr><tr><td>points</td>${statRow(d.stats)}</tr>
+    <tr><td>deck focus</td>${STATS.map(s => `<td>${share(d.stats, s)}%</td>`).join('')}</tr>
+    <tr><td class="muted">target focus</td>${STATS.map(s => `<td class="muted">${t ? share(t, s) + '%' : ''}</td>`).join('')}</tr></table>
+    ${t ? `<div class="muted">${STATS.filter(s => share(d.stats, s) < share(t, s) - 8).map(s => `Light on ${s}: get it from training choices, events or parents.`).join(' ') || 'Focus matches the target.'}</div>` : ''}</div>
+    <div class="card"><b>Useful hint skills</b><br>${d.hints.map(h => `${esc(h.name)} <span class="muted">${h.lengths}L</span>`).join(' · ') || '<span class="muted">none that fit this race</span>'}</div>
+    ${d.parents ? `<div class="card"><b>Best parents from your veterans</b><table><tr><th>Pair</th><th>Score</th><th>Affinity</th></tr>${d.parents.map(p => `<tr><td>${p.labels.map(esc).join(' + ')}</td><td>${p.score}</td><td>${p.affinity}</td></tr>`).join('') || '<tr><td class="muted">Add veterans with sparks to get suggestions.</td></tr>'}</table><div class="muted">Affinity counts only these two (grandparents aren't stored).</div></div>` : '<div class="card muted">Pick a trainee to get parent suggestions and expected stats.</div>'}`;
+}
+
+// ---------- training ----------
+$('#trStats').innerHTML = STATS.map(s => `<label>${s} <input type="number" id="trS-${s}" value="100"></label>`).join('');
+$('#trOpts').innerHTML = `<tr><th>Training</th>${STATS.map(s => `<th>+${s}</th>`).join('')}<th>+SP</th><th>Fail %</th><th>Bonds</th><th>Rainbows</th><th>Hint</th></tr>` +
+  STATS.map(o => `<tr data-opt="${o}"><td>${o}</td>${[...STATS, 'sp'].map(s => `<td><input type="number" data-g="${s}" style="width:60px"></td>`).join('')}
+    <td><input type="number" data-k="fail" style="width:60px"></td><td><input type="number" data-k="bonds" style="width:50px" title="supports on this training not yet orange"></td>
+    <td><input type="number" data-k="rainbows" style="width:50px"></td><td><input type="checkbox" data-k="hint"></td></tr>`).join('');
+async function scoreTurn() {
+  const options = [...document.querySelectorAll('#trOpts tr[data-opt]')].map(tr => ({ name: tr.dataset.opt,
+    gains: Object.fromEntries([...tr.querySelectorAll('[data-g]')].map(i => [i.dataset.g, +i.value || 0])),
+    fail: +tr.querySelector('[data-k=fail]').value || 0, bonds: +tr.querySelector('[data-k=bonds]').value || 0,
+    rainbows: +tr.querySelector('[data-k=rainbows]').value || 0, hint: tr.querySelector('[data-k=hint]').checked }))
+    .filter(o => Object.values(o.gains).some(v => v));
+  const r = await api('turn', 'POST', { turn: +$('#trTurn').value, energy: +$('#trEnergy').value, mood: +$('#trMood').value, distance_cat: $('#trDist').value,
+    race_available: $('#trRace').checked, stats: Object.fromEntries(STATS.map(s => [s, +$('#trS-' + s).value || 0])), options });
+  $('#trOut').innerHTML = `<table>${r.map((x, i) => `<tr${i === 0 ? ' style="font-weight:600"' : ''}><td>${i === 0 ? '→ ' : ''}${esc(x.action)}</td><td>${x.score}</td><td class="muted">${esc(x.why)}</td></tr>`).join('')}</table>
+    <div class="muted">Heuristic score (stat value toward your targets, bonds early, failure risk, energy). Not a simulation.</div>`;
+}
+let evTimer;
+$('#evQ').oninput = () => { clearTimeout(evTimer); evTimer = setTimeout(async () => {
+  const r = await api('events?' + new URLSearchParams({ q: $('#evQ').value, distance_cat: $('#trDist').value })).catch(() => []);
+  $('#evOut').innerHTML = eventHtml(r) || '<span class="muted">No match.</span>';
+}, 200); };
+const eventHtml = r => r.map(e => `<p><b>${esc(e.name)}</b> <span class="muted">${esc(e.source)}</span></p><table>${e.options.map(o =>
+  `<tr${o.best ? ' style="font-weight:600"' : ''}><td>${o.best ? '→ ' : ''}${esc(o.option)}</td><td style="white-space:pre-line">${esc(o.effects)}</td><td>${o.value}${o.random ? ' <span class="muted">(random)</span>' : ''}</td></tr>`).join('')}</table>`).join('');
+async function racePlan() {
+  const u = byLabel.uma[$('#rpUma').value]; if (!u) { $('#rpOut').innerHTML = '<span class="err">Pick a trainee.</span>'; return; }
+  const r = await api(`races/${u.id}?min_grade=${$('#rpGrade').value}&min_apt=${$('#rpApt').value}`);
+  const obj = Object.fromEntries(r.objectives.map(o => [+o.Turn, o.ObjectiveName]));
+  const turns = [...new Set([...r.races.map(x => x.turn), ...Object.keys(obj).map(Number)])].sort((a, b) => a - b);
+  $('#rpOut').innerHTML = `<table><tr><th>Turn</th><th>Objective</th><th>Races you fit</th></tr>${turns.map(t => `<tr><td>${t}</td><td>${esc(obj[t] || '')}</td><td>${r.races.filter(x => x.turn === t).map(x =>
+    `${x.grade === 'G1' ? '<b>' : ''}${esc(x.grade)} ${esc(x.name)}${x.grade === 'G1' ? '</b>' : ''} <span class="muted">${esc(x.track)} ${x.distance}m ${x.surface} · ${x.apt}</span>`).join('<br>')}</td></tr>`).join('')}</table>
+    <div class="muted">Plan G1s where aptitude is A; avoid more than 2 races in a row (mood/energy). Objectives from UmaTools.</div>`;
+}
+
+// ---------- skills ----------
+let SKILLS = [];
+function addSkill() {
+  const id = skillByName[$('#skAdd').value]; if (!id) return;
+  if (!SKILLS.some(s => s.id === id)) SKILLS.push({ id, hint: +$('#skHint').value, owned: false });
+  $('#skAdd').value = ''; drawSkills();
+}
+function drawSkills() {
+  $('#skList').innerHTML = SKILLS.map((s, i) => `<tr><td>${esc(DB.skills[s.id])}</td><td>hint ${s.hint}</td><td><label style="flex-direction:row">learned <input type="checkbox" ${s.owned ? 'checked' : ''} onchange="SKILLS[${i}].owned=this.checked"></label></td><td><button onclick="SKILLS.splice(${i},1);drawSkills()">×</button></td></tr>`).join('');
+}
+async function optimizeSkills() {
+  let r; try {
+    r = await api('skills', 'POST', { sp: +$('#skSp').value, distance_cat: $('#skDist').value, distance_m: +$('#skM').value || null, style: $('#skStyle').value,
+      surface: $('#skSurf').value, track: $('#skTrack').value || null, direction: $('#skDir').value, skills: SKILLS.filter(s => !s.owned), owned: SKILLS.filter(s => s.owned).map(s => s.id) });
+  } catch (e) { $('#skOut').innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+  $('#skOut').innerHTML = `<p><b>Buy these</b> · ${r.spent}/${r.budget} SP · ≈${r.lengths} lengths</p><table>${r.chosen.map(c => `<tr><td>${esc(c.name)}</td><td>${c.cost} SP</td><td>${c.lengths} L</td></tr>`).join('') || '<tr><td class="muted">Nothing affordable adds value for this race.</td></tr>'}</table>`;
+}
+
+// ---------- banners & income ----------
+async function loadBanners() {
+  const b = await api('banners').catch(() => null); if (!b) return;
+  const today = new Date().toISOString().slice(0, 10);
+  const live = b.announced.filter(x => x.end >= today);
+  const cardBtn = (kind, id) => { const c = byId[kind]?.[id]; return `<button onclick="advise('${kind}',${+id})">${esc(c ? labelOf(c) : '#' + id)}</button>`; };
+  $('#bOut').innerHTML = `<p><b>Live & announced</b></p><table>${live.map(x => `<tr><td>${esc(x.start)} – ${esc(x.end)}</td><td>${esc(x.name)} <span class="muted">${esc(x.kind)}</span></td><td>${x.featured.map(id => cardBtn(x.kind, id)).join(' ')}</td></tr>`).join('') || '<tr><td class="muted">none listed</td></tr>'}</table>
+    <p><b>Forecast</b> <span class="muted">${esc(b.note)}</span></p><table>${b.banners.map(x => `<tr><td>${x.estimate ? '<i>est.</i> ' : ''}${esc(x.from)}${x.from !== x.to ? ' – ' + esc(x.to) : ''}</td><td class="muted">JP ${esc(x.jp_date)}</td><td>${x.cards.map(c => cardBtn(c.kind, c.id)).join(' ')}</td></tr>`).join('')}</table>
+    <div class="muted">Click a card for pull-or-save advice.</div>`;
+}
+async function advise(kind, id) {
+  $('#bAdvice').innerHTML = '<p>Thinking…</p>';
+  const a = await api(`advise/${kind}/${id}`).catch(e => ({ error: e.message }));
+  if (a.error) { $('#bAdvice').innerHTML = `<p class="err">${esc(a.error)}</p>`; return; }
+  const color = { Pull: '#2fa36b', Save: '#e0a100', Skip: 'var(--muted)' }[a.verdict];
+  $('#bAdvice').innerHTML = `<div class="card"><span class="big" style="color:${color}">${esc(a.verdict)}</span> ${esc(a.card)}<p>${esc(a.why)}</p>
+    <p class="muted">${a.pulls_available} pulls available now · P(first copy) ${pct(a.p_first_copy)}${a.p_mlb != null ? ' · P(MLB) ' + pct(a.p_mlb) : ''}
+    ${a.gain_by_lb ? ' · deck gain by LB: ' + a.gain_by_lb.join(' / ') : ''}${a.gains ? ' · vs your best uma: ' + Object.entries(a.gains).map(([d, g]) => `${d} ${g > 0 ? '+' : ''}${g}`).join(', ') : ''}</p>
+    ${a.community ? `<p>Community: ${tierTag(a.community.tier)} ${esc(a.community.reason)}</p>` : ''}
+    ${a.future?.length ? `<p class="muted">Upcoming alternatives: ${a.future.map(f => `${esc(f.label)} (${esc(f.window)}${f.estimate ? ', est.' : ''}) +${f.gain}`).join(' · ')}</p>` : ''}</div>`;
+}
+async function projectIncome() {
+  if (!$('#incDate').value) return;
+  const r = await api('income?until=' + $('#incDate').value).catch(e => ({ error: e.message }));
+  $('#incOut').innerHTML = r.error ? `<p class="err">${esc(r.error)}</p>` : `<p><span class="big">${r.carats.toLocaleString()}</span> carats by ${esc(r.date)} (${r.pulls} pulls, +${r.tickets_support} support tickets) · ${r.days} days at ${r.rates.daily}/day + ${r.rates.weekly_extra}/week${r.rates.pass_daily ? ' + pass ' + r.rates.pass_daily + '/day' : ''}</p>`;
+}
+
+// ---------- settings ----------
+let WEIGHTS;
+async function loadWeights() { WEIGHTS = await api('weights'); $('#wOver').value = WEIGHTS.overrides; $('#wDef').textContent = JSON.stringify(WEIGHTS.defaults, null, 1); }
+async function saveWeights() {
+  try { JSON.parse($('#wOver').value || '{}'); await api('kv', 'PUT', { key: 'weights', value: $('#wOver').value || '{}' }); $('#wMsg').textContent = 'Saved.'; TIERS = {}; loadTiers(); }
+  catch (e) { $('#wMsg').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+}
+
+// ---------- dashboard ----------
+const countdown = iso => { const s = Math.max(0, (new Date(iso) - Date.now()) / 1000); const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return (d ? d + 'd ' : '') + h + 'h ' + m + 'm'; };
+async function loadDashboard() {
+  const d = await api('dashboard').catch(e => ({ error: e.message }));
+  if (d.error) { $('#dbGrid').innerHTML = `<div class="card err">${esc(d.error)}</div>`; return; }
+  $('#dbAlerts').innerHTML = d.alerts.length ? `<div class="card"><b>Recommendations changed after the last data update</b><ul>${d.alerts.map(a => `<li>${esc(a)}</li>`).join('')}</ul><button onclick="api('alerts','DELETE').then(loadDashboard)">Dismiss</button></div>` : '';
+  const nb = d.next_banner;
+  const verdictColor = { Pull: '#2fa36b', Save: '#e0a100', Skip: 'var(--muted)' };
+  $('#dbGrid').innerHTML = `
+    <div class="card"><div class="muted">Carats</div><div class="big">${d.carats.toLocaleString()}</div>
+      ${d.projected ? `<div class="muted">≈ ${d.projected.carats.toLocaleString()} (${d.projected.pulls} pulls) by the next banner on ${esc(d.projected.date)}</div>` : ''}
+      <div class="muted">Daily reset in ${countdown(d.resets.daily)} · weekly in ${countdown(d.resets.weekly)}</div></div>
+    <div class="card"><div class="muted">Next recommended banner</div>${nb ? `<div class="big" style="color:${verdictColor[nb.verdict]}">${esc(nb.verdict)}</div><div>${esc(nb.card)}</div>
+      <div class="muted">${esc(nb.window)}${nb.estimate ? ' (estimate)' : ''} · ${esc(nb.why)}</div>` : '<div class="muted">No upcoming support banners in the forecast.</div>'}
+      <button onclick="show('pulls')">Pull advisor →</button></div>
+    <div class="card"><div class="muted">Champions Meeting</div>${d.cm ? `<div><b>${esc(d.cm.name)}</b>${d.cm.estimate ? ' <span class="muted">(estimate)</span>' : ''}</div>
+      <div class="muted">${esc(d.cm.track)} ${d.cm.distance_m}m ${esc(d.cm.surface)} · ${esc(d.cm.start)} – ${esc(d.cm.end)}</div>` : '<div class="muted">none listed</div>'}
+      <button onclick="show('tools')">CM prep →</button></div>
+    <div class="card"><div class="muted">Account gaps</div>${d.gaps.map(g => `<div>${esc(g.message)} <span class="muted">(best: ${esc(g.best_owned || 'none')}; e.g. ${esc(g.suggest.join(', '))})</span></div>`).join('') || `<div>${d.owned_count ? 'No big gaps by card type.' : 'Add your support cards in Collection first.'}</div>`}</div>
+    ${Object.entries(d.decks).map(([dist, x]) => `<div class="card"><div class="muted">Top ${dist} deck · ${x.score}</div>${x.cards.map(esc).join('<br>') || '<span class="muted">no cards yet</span>'}</div>`).join('')}`;
+}
+
+// ---------- global search ----------
+let sTimer;
+$('#sQ').oninput = () => { clearTimeout(sTimer); sTimer = setTimeout(async () => {
+  const q = $('#sQ').value.trim(); if (q.length < 2) { $('#sResults').hidden = true; return; }
+  const r = await api('search?q=' + encodeURIComponent(q)).catch(() => []);
+  $('#sResults').hidden = !r.length;
+  $('#sResults').innerHTML = r.map((x, i) => `<div data-i="${i}"><span class="pill">${esc(x.kind)}</span> ${esc(x.kind === 'support' || x.kind === 'uma' ? labelOf(byId[x.kind]?.[x.id] || { title: '', name: x.label }) : x.label)} <span class="muted">${esc(x.extra)}</span></div>`).join('');
+  $('#sResults').onclick = e => { const x = r[e.target.closest('[data-i]')?.dataset.i]; if (!x) return; $('#sResults').hidden = true; openResult(x); };
+}, 200); };
+document.addEventListener('click', e => { if (!e.target.closest('#search')) $('#sResults').hidden = true; });
+function openResult(x) {
+  if (x.kind === 'event') { show('training'); $('#evQ').value = x.label; $('#evQ').oninput(); }
+  else if (x.kind === 'skill') { show('skills'); $('#skAdd').value = x.label; }
+  else { show('tiers'); $('#tKind').value = x.kind; $('#tQ').value = byId[x.kind]?.[x.id]?.name || x.label; loadTiers(); }
+}
+
+// ---------- veterans: cleanup, parents, team trials ----------
+let NEXT = [];
+$('#vcNext').onkeydown = e => { if (e.key !== 'Enter') return; const u = byLabel.uma[$('#vcNext').value]; if (!u || NEXT.includes(u.id)) return;
+  NEXT.push(u.id); $('#vcNext').value = ''; api('kv', 'PUT', { key: 'next_trainees', value: JSON.stringify(NEXT) }).then(drawNext); };
+const drawNext = () => $('#vcNextList').innerHTML = NEXT.map((id, i) => `${esc(byId.uma[id] ? labelOf(byId.uma[id]) : id)} <a href="#" onclick="NEXT.splice(${i},1);api('kv','PUT',{key:'next_trainees',value:JSON.stringify(NEXT)}).then(drawNext);return false">×</a>`).join(' · ');
+async function vetCleanup() {
+  const r = await api('veterans/cleanup?free=' + (+$('#vcFree').value || 0)).catch(e => ({ error: e.message }));
+  if (r.error) { $('#vcOut').innerHTML = `<p class="err">${esc(r.error)}</p>`; return; }
+  const remove = new Set(r.remove), colors = { 'Keep (locked)': '#2fa36b', 'Low priority': '#3b82f6', 'Consider removing': '#e0a100', 'Trash': '#d33' };
+  $('#vcOut').innerHTML = (r.remove.length ? `<p><b>Suggested to remove to free ${r.remove.length} slot(s):</b> #${r.remove.join(', #')}. Delete them in the game yourself if you agree.</p>` : '')
+    + (r.note ? `<p class="err">${esc(r.note)}</p>` : '')
+    + `<table><tr><th>#</th><th>Tier</th><th>Veteran</th><th>Value</th><th>Reason</th></tr>${r.rows.map(x => `<tr${remove.has(x.id) ? ' style="outline:2px solid #d33"' : ''}><td class="muted">${x.id}</td>
+      <td><b style="color:${colors[x.tier]}">${esc(x.tier)}</b></td><td>${esc(x.label)}</td><td>${x.score}</td><td class="muted">${esc(x.reason)}</td></tr>`).join('')}</table>
+      <div class="muted">Protected (never suggested): locked, pinned, in a lineup, rental, in a saved parent plan, or the only source of a spark a plan needs.</div>`;
+}
+let WANTS = [];
+function ppAdd() { const n = $('#ppSpark').value.trim(); if (!n) return; WANTS.push({ name: n, stars: +$('#ppStars').value }); $('#ppSpark').value = ''; drawWants(); }
+const drawWants = () => $('#ppWants').innerHTML = WANTS.map((x, i) => `${esc(x.name)} ${x.stars}★ <a href="#" onclick="WANTS.splice(${i},1);drawWants();return false">×</a>`).join(' · ');
+let PP = [];
+async function ppPlan() {
+  const u = byLabel.uma[$('#ppUma').value]; if (!u) { $('#ppOut').innerHTML = '<p class="err">Pick a trainee.</p>'; return; }
+  PP = await api('parents/plan', 'POST', { trainee_id: u.id, wants: WANTS });
+  $('#ppOut').innerHTML = `<table><tr><th>Pair</th><th>Covers</th><th>Affinity</th><th></th></tr>${PP.map((p, i) => `<tr><td>#${p.parents.join(' + #')} ${p.labels.map(esc).join(' + ')}</td>
+    <td>${Math.round(p.coverage * 100)}% <span class="muted">${p.cover.map(c => `${esc(c.name)} ${c.have}/${c.want}★`).join(', ')}</span></td><td>${p.affinity}</td>
+    <td><button onclick="ppSave(${i}, ${u.id})">Save plan</button></td></tr>`).join('') || '<tr><td class="muted">Need at least 2 veterans of different characters.</td></tr>'}</table>`;
+}
+async function ppSave(i, trainee) {
+  const plans = JSON.parse(PROFILE.kv.planned_parents || '[]');
+  plans.push({ trainee_id: trainee, parents: PP[i].parents, wants: WANTS });
+  await api('kv', 'PUT', { key: 'planned_parents', value: JSON.stringify(plans) }); await loadProfile(); drawPlans();
+}
+function drawPlans() {
+  const plans = JSON.parse(PROFILE.kv.planned_parents || '[]');
+  $('#ppSaved').innerHTML = plans.length ? `<p><b>Saved plans</b> <span class="muted">(these veterans are protected from cleanup)</span></p>` + plans.map((p, i) =>
+    `<div>${esc(byId.uma[p.trainee_id] ? labelOf(byId.uma[p.trainee_id]) : p.trainee_id)}: parents #${p.parents.join(' + #')} · ${p.wants.map(w => esc(w.name) + ' ' + w.stars + '★').join(', ')}
+     <a href="#" onclick="dropPlan(${i});return false">×</a></div>`).join('') : '';
+}
+async function dropPlan(i) { const plans = JSON.parse(PROFILE.kv.planned_parents || '[]'); plans.splice(i, 1); await api('kv', 'PUT', { key: 'planned_parents', value: JSON.stringify(plans) }); await loadProfile(); drawPlans(); }
+let TT;
+async function ttLineup() {
+  TT = await api('tt');
+  $('#ttOut').innerHTML = `<table>${Object.entries(TT.team).map(([cat, m]) => `<tr><td><b>${cat}</b></td><td>${m.map(x => `#${x.id} ${esc(x.label)} <span class="muted">${x.fit}</span>`).join('<br>') || '<span class="muted">nobody fits</span>'}</td></tr>`).join('')}</table>
+    <div class="muted">${esc(TT.note)}</div><button onclick="api('tt/apply','POST',{ids:TT.ids}).then(loadProfile)">Mark these as my lineup (protects them; untick old ones in the table)</button>`;
+}
+
+// ---------- tools ----------
+let CHECK = [];
+async function loadChecklist() {
+  const r = await api('checklist'); CHECK = r.items;
+  $('#ckReset').textContent = `daily reset in ${countdown(r.resets.daily)}, weekly in ${countdown(r.resets.weekly)}`;
+  $('#ckList').innerHTML = CHECK.map((c, i) => `<div><label style="flex-direction:row;gap:6px;color:var(--fg);font-size:14px"><input type="checkbox" ${c.done ? 'checked' : ''} onchange="api('checklist/${i}/toggle','POST').then(loadChecklist)"> ${esc(c.text)}</label>
+    <span class="pill">${c.freq}</span> <a href="#" onclick="CHECK.splice(${i},1);saveChecklist();return false">×</a></div>`).join('') || '<span class="muted">Nothing yet. Add your dailies (missions, Team Trials, shop…)</span>';
+}
+const saveChecklist = () => api('kv', 'PUT', { key: 'checklist', value: JSON.stringify(CHECK.map(({ text, freq, done_at }) => ({ text, freq, done_at }))) }).then(loadChecklist);
+function addCheck() { const t = $('#ckText').value.trim(); if (!t) return; CHECK.push({ text: t, freq: $('#ckFreq').value }); $('#ckText').value = ''; saveChecklist(); }
+function drawPlanner() {
+  const pl = JSON.parse(PROFILE.kv.planner || '[]').sort((a, b) => a.kind.localeCompare(b.kind) || a.priority - b.priority);
+  $('#plList').innerHTML = pl.length ? `<table>${pl.map((p, i) => `<tr><td><span class="pill">${esc(p.kind)}</span></td><td>${esc(p.name)}</td><td class="muted">${esc(p.when)}</td><td>P${p.priority}</td><td><a href="#" onclick="dropPlanItem(${i});return false">×</a></td></tr>`).join('')}</table>` : '<span class="muted">Track upcoming events and what to buy first in each shop.</span>';
+}
+async function addPlan() { const pl = JSON.parse(PROFILE.kv.planner || '[]'); if (!$('#plName').value.trim()) return;
+  pl.push({ kind: $('#plKind').value, name: $('#plName').value.trim(), when: $('#plWhen').value.trim(), priority: +$('#plPri').value });
+  $('#plName').value = ''; $('#plWhen').value = ''; await api('kv', 'PUT', { key: 'planner', value: JSON.stringify(pl) }); await loadProfile(); drawPlanner(); }
+async function dropPlanItem(i) { const pl = JSON.parse(PROFILE.kv.planner || '[]').sort((a, b) => a.kind.localeCompare(b.kind) || a.priority - b.priority); pl.splice(i, 1);
+  await api('kv', 'PUT', { key: 'planner', value: JSON.stringify(pl) }); await loadProfile(); drawPlanner(); }
+async function loadToolsHeavy() {
+  const [lb, gp] = await Promise.all([api('lbplan'), api('gaps')]);
+  $('#lbOut').innerHTML = `<table><tr><th>Card</th><th>Now</th><th>Value of +1 LB</th></tr>${lb.slice(0, 10).map(x => `<tr><td>${esc(x.label)}${x.in_deck ? ' <span class="pill">in a best deck</span>' : ''}</td><td>${x.lb} LB</td><td>+${x.gain}</td></tr>`).join('') || '<tr><td class="muted">Add support cards in Collection.</td></tr>'}</table>`;
+  $('#gapOut').innerHTML = `<table><tr><th>Type</th><th>Your best</th><th>Value</th><th>Global top-3 avg</th><th>Missing</th><th>Consider</th></tr>${gp.map(g => `<tr${g.message ? ' style="font-weight:600"' : ''}><td>${g.type}</td><td>${esc(g.best_owned || '—')}</td><td>${g.best_value}</td><td>${g.global_top}</td><td>${g.missing}</td><td class="muted">${esc(g.suggest.join(', '))}</td></tr>`).join('')}</table>`;
+}
+async function whatIf() {
+  const v = $('#wiCard').value, s = byLabel.support[v], u = byLabel.uma[v];
+  if (!s && !u) { $('#wiOut').innerHTML = '<p class="err">Pick a card or uma from the list.</p>'; return; }
+  $('#wiOut').innerHTML = '<p>Working…</p>';
+  const r = await api(`whatif/${s ? 'support' : 'uma'}/${(s || u).id}?lb=${$('#wiLb').value}`);
+  $('#wiOut').innerHTML = r.decks ? `<p>${esc(r.card)} at ${r.lb} LB: model tier ${tierTag(r.tier)}, value ${r.value}</p><table><tr><th>Deck</th><th>Before</th><th>After</th><th>Change</th><th>Swaps</th></tr>${r.decks.map(d =>
+    `<tr><td>${d.distance}</td><td>${d.before}</td><td>${d.after}</td><td>${d.delta > 0 ? '+' : ''}${d.delta}</td><td class="muted">${d.in.length ? 'in: ' + d.in.map(esc).join(', ') + '; out: ' + d.out.map(esc).join(', ') : 'no change'}</td></tr>`).join('')}</table>`
+    : `<p>${esc(r.card)}: ${esc(r.verdict)} · ${esc(r.why)}</p><p class="muted">vs your best uma: ${Object.entries(r.gains || {}).map(([d, g]) => `${d} ${g > 0 ? '+' : ''}${g}`).join(', ')}</p>`;
+}
+$('#rsStats').innerHTML = STATS.map(s => `<label>${s} <input type="number" id="rs-${s}" value="${{ speed: 1100, stamina: 800, power: 900, guts: 400, wit: 600 }[s]}"></label>`).join('');
+$('#rlStats').innerHTML = STATS.map(s => `<label>${s} <input type="number" id="rl-${s}"></label>`).join('');
+async function targetsCalc() {
+  const r = await api(`targets?distance=${+$('#rsDist').value}&style=${$('#rsStyle').value}&heal=${+$('#rsHeal').value || 0}`).catch(e => ({ error: e.message }));
+  $('#rsOut').innerHTML = r.error ? `<p class="err">${esc(r.error)}</p>` : `<p><b>Targets</b> ${STATS.map(s => `${s} ${r[s]}`).join(' · ')}</p><p class="muted">Stamina = least that still allows a full last spurt with ${+$('#rsHeal').value || 0}% recovery (idealized). Others are editable defaults in Settings.</p>`;
+}
+async function raceSim() {
+  const r = await api('sim', 'POST', { distance: +$('#rsDist').value, style: $('#rsStyle').value, dist_apt: $('#rsDA').value, surf_apt: $('#rsSA').value,
+    heal_pct: +$('#rsHeal').value || 0, skill_lengths: +$('#rsSkill').value || 0, stats: Object.fromEntries(STATS.map(s => [s, +$('#rs-' + s).value || 0])) }).catch(e => ({ error: e.message }));
+  if (r.error) { $('#rsOut').innerHTML = `<p class="err">${esc(r.error)}</p>`; return; }
+  const row = (n, x) => `<tr><td>${n}</td><td>${x.time}s</td><td>${x.spurt_ok ? 'full spurt' : `<span class="err">spurt cut to ${x.spurt_speed} of ${x.spurt_max} m/s</span>`}</td><td>${x.hp_left}/${x.max_hp} HP left${x.out_of_hp ? ' <span class="err">ran out</span>' : ''}</td></tr>`;
+  $('#rsOut').innerHTML = `<p><span class="big">${r.lengths > 0 ? '+' : ''}${r.lengths} lengths</span> · you'd finish ${esc(r.verdict)} a typical meta runner <span class="muted">(estimate)</span></p>
+    <table>${row('You', r.me)}${row('Typical meta', r.field)}</table><div class="muted">Idealized: no positioning, blocking, slopes, or randomness. Sim seconds, not the in-game clock.</div>`;
+}
+async function cmPrep() {
+  $('#cmOut').innerHTML = '<p>Working…</p>';
+  const r = await api('cm/' + $('#cmSel').value).catch(e => ({ error: e.message }));
+  if (r.error) { $('#cmOut').innerHTML = `<p class="err">${esc(r.error)}</p>`; return; }
+  $('#cmOut').innerHTML = `<p><b>${esc(r.cup.name)}</b> · ${esc(r.cup.track)} ${r.cup.distance_m}m ${esc(r.cup.surface)} ${esc(r.cup.direction || '')}${r.cup.estimate ? ' <span class="muted">(estimate)</span>' : ''}</p>
+    <p><b>Target stats</b> (${esc(r.target.style)}): ${STATS.map(s => `${s} ${r.stats[s]}`).join(' · ')}</p>
+    <p><b>Your best umas</b></p><table>${r.umas.map(u => `<tr><td>${esc(u.label)}</td><td>${u.apt}</td><td>${u.style}</td><td>${u.score}</td></tr>`).join('') || '<tr><td class="muted">Add umas in Collection.</td></tr>'}</table>
+    <p><b>Skills that fit this course</b> <span class="muted">(approx lengths)</span><br>${r.skills.map(s => `${esc(s.name)} <span class="muted">${s.lengths}</span>`).join(' · ')}</p>
+    <p><b>Deck</b> · ${r.deck_score}<br>${r.deck.map(c => esc(c.label) + (c.borrow ? ' (borrow)' : '')).join('<br>')}</p>`;
+}
+async function addRun() {
+  const u = byLabel.uma[$('#rlUma').value];
+  await api('log/run', 'POST', { uma_id: u?.id, distance: $('#rlDist').value, rating: +$('#rlRating').value || null,
+    stats: Object.fromEntries(STATS.map(s => [s, +$('#rl-' + s).value || 0])), deck: $('#rlDeck').checked ? LAST_DECK : [] });
+  loadRuns();
+}
+async function loadRuns() {
+  const [runs, t] = await Promise.all([api('log/run'), api('runs/tuning')]);
+  $('#rlOut').innerHTML = runs.length ? `<table><tr><th>Date</th><th>Uma</th><th>Dist</th><th>Rating</th><th>Stats</th><th></th></tr>${runs.slice(0, 15).map(r => `<tr><td>${esc(r.date)}</td><td>${esc(byId.uma[r.uma_id] ? labelOf(byId.uma[r.uma_id]) : '')}</td><td>${esc(r.distance)}</td><td>${r.rating ?? ''}</td>
+    <td class="muted">${STATS.map(s => r.stats?.[s] ?? '').join('/')}</td><td><a href="#" onclick="api('log/run/${r.id}','DELETE').then(loadRuns);return false">×</a></td></tr>`).join('')}</table>` : '';
+  $('#rlTune').innerHTML = t.suggestions.length ? `<p><b>Suggested weight changes</b> from ${t.runs} runs</p>${t.suggestions.map(s => `<div>${s.distance} ${s.stat}: ends at ${s.avg_vs_target} of target → priority ${s.priority[0]} → ${s.priority[1]}</div>`).join('')}
+    <button onclick='applyTuning(${JSON.stringify(JSON.stringify(t.override))})'>Apply to weights</button>` : `<p class="muted">${t.runs < 3 ? 'Log at least 3 runs per distance for suggestions.' : 'Your runs land near target; no changes suggested.'}</p>`;
+  if (t.cards.length) $('#rlTune').innerHTML += `<p class="muted">Cards in your better runs: ${t.cards.slice(0, 5).map(c => `${esc(c.label)} (${c.avg_rating_delta > 0 ? '+' : ''}${c.avg_rating_delta})`).join(', ')}</p>`;
+}
+async function applyTuning(overrideJson) {
+  const cur = JSON.parse($('#wOver').value || '{}'), add = JSON.parse(overrideJson);
+  for (const [d, stats] of Object.entries(add.priority || {})) { cur.priority ??= {}; cur.priority[d] = { ...(cur.priority[d] || {}), ...stats }; }
+  $('#wOver').value = JSON.stringify(cur); await saveWeights(); loadRuns();
+}
+async function addPull() {
+  await api('log/pull_log', 'POST', { banner: $('#phBanner').value, kind: $('#phKind').value, pulls: +$('#phPulls').value || 0, ssr: +$('#phSsr').value || 0, target: +$('#phTarget').value || 0 });
+  loadPulls();
+}
+async function loadPulls() {
+  const [rows, l] = await Promise.all([api('log/pull_log'), api('luck')]);
+  $('#phLuck').innerHTML = l.pulls ? `<p>${l.pulls} pulls · SSRs ${l.ssr} (expected ${l.expected_ssr}, luckier than ~${l.ssr_luck}% of outcomes) · featured ${l.target} (expected ${l.expected_target}, ~${l.target_luck}%)</p>
+    <p class="muted">Spark progress: ${Object.entries(l.spark).map(([b, s]) => `${esc(b)} ${s.points} pts (${s.to_spark} to next spark)`).join(' · ')}</p>` : '';
+  $('#phOut').innerHTML = rows.length ? `<table>${rows.slice(0, 15).map(r => `<tr><td>${esc(r.date)}</td><td>${esc(r.banner)}</td><td>${esc(r.kind)}</td><td>${r.pulls} pulls</td><td>${r.ssr} SSR</td><td>${r.target} featured</td><td><a href="#" onclick="api('log/pull_log/${r.id}','DELETE').then(loadPulls);return false">×</a></td></tr>`).join('')}</table>` : '';
+}
+
+// ---------- settings extras ----------
+$('#setNames').value = JP ? 'jp' : 'en';
+$('#setNames').onchange = () => { lsSet('names', $('#setNames').value); location.reload(); };
+$('#bkFile').onchange = async () => {
+  const f = $('#bkFile').files[0]; if (!f) return;
+  if (!confirm('Replace your whole profile with this backup?')) { $('#bkFile').value = ''; return; }
+  try { await api('restore', 'POST', JSON.parse(await f.text())); alert('Restored.'); location.reload(); } catch (e) { alert(e.message); }
+};
+async function loadHistory() {
+  const h = await api('log/history');
+  $('#histOut').innerHTML = `<table>${h.slice(0, 100).map(x => `<tr><td class="muted">${esc(x.ts)}</td><td>${esc(x.tbl)}</td><td>${esc(x.key)}</td><td class="muted">${esc((x.old || '').slice(0, 60))} → ${esc((x.new || '').slice(0, 60))}</td></tr>`).join('')}</table>`;
+}
+document.querySelector('#settings details').ontoggle = e => e.target.open && loadHistory();
+
+// ---------- auto-import ----------
+let autoTimer;
+$('#iAuto').checked = lsGet('autoImport') === '1';
+const setAuto = () => { clearInterval(autoTimer); lsSet('autoImport', $('#iAuto').checked ? '1' : '0'); if ($('#iAuto').checked) autoTimer = setInterval(loadImports, 30000); };
+$('#iAuto').onchange = setAuto;
+setAuto();
+const _loadImports = loadImports;
+loadImports = async function () { await _loadImports(); const n = document.querySelectorAll('#iList button').length; document.querySelector('[data-tab=import]').textContent = n ? `Import (${n})` : 'Import'; };
+
+// lazy-load heavy tabs when opened
+const LAZY = { dashboard: loadDashboard, tools: () => { loadChecklist(); drawPlanner(); loadToolsHeavy(); loadRuns(); loadPulls(); }, veterans: () => { drawPlans(); drawNext(); } };
+$('#tabs').addEventListener('click', e => LAZY[e.target.dataset.tab]?.());
+
+loadData().then(loadProfile).then(() => {
+  NEXT = JSON.parse(PROFILE.kv.next_trainees || '[]');
+  $('#cmSel').innerHTML = (DB.curated?.champions_meeting || []).map((c, i) => `<option value="${i}">${esc(c.name)}${c.estimate ? ' (est.)' : ''}</option>`).join('');
+  const cur = document.querySelector('nav button.on')?.dataset.tab; LAZY[cur]?.();
+  return Promise.all([calcPulls(), loadImports(), loadWeights(), loadBanners()]);
+}).then(loadTiers);
+</script>
+</body>
+</html>

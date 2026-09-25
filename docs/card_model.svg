@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 240" width="680" height="240" role="img" aria-label="Support card model vs expert tier list">
+<title>Support card model vs expert tier list</title>
+<style>
+  svg { --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781; --grid:#e1e0d9; --axis:#c3c2b7; --accent:#2a78d6; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --grid:#2c2c2a; --axis:#383835; --accent:#3987e5; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; fill: var(--ink2); font-size: 13px; }
+  .title { fill: var(--ink); font-size: 16px; font-weight: 600; } .val { fill: var(--ink); font-weight: 600; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .app { fill: var(--accent); } .base { fill: var(--muted); } rect.hit { fill: transparent; }
+  .grid { stroke: var(--grid); stroke-width: 1; } .axis { stroke: var(--axis); stroke-width: 1; }
+  .ref { stroke: var(--ink2); stroke-width: 1; } .whisker { stroke: var(--ink2); stroke-width: 1.5; }
+</style>
+<rect width="680" height="240" rx="8" style="fill:var(--surface)"/>
+<text x="20" y="32" class="title">Support card model vs expert tier list</text>
+<text x="20" y="54">Pairs ranked the same way as Game8, on held-out cards (mean ± SD over 20 splits)</text>
+<rect x="20" y="66" width="12" height="12" rx="3" class="app"/><text x="38" y="77">Trainer Notebook model</text>
+<rect x="210" y="66" width="12" height="12" rx="3" class="base"/><text x="228" y="77">Baseline</text>
+<line x1="230.0" x2="230.0" y1="86" y2="206" class="grid"/><text x="230.0" y="224" text-anchor="middle" class="tick">0%</text>
+<line x1="325.0" x2="325.0" y1="86" y2="206" class="grid"/><text x="325.0" y="224" text-anchor="middle" class="tick">25%</text>
+<line x1="420.0" x2="420.0" y1="86" y2="206" class="grid"/><text x="420.0" y="224" text-anchor="middle" class="tick">50%</text>
+<line x1="515.0" x2="515.0" y1="86" y2="206" class="grid"/><text x="515.0" y="224" text-anchor="middle" class="tick">75%</text>
+<line x1="610.0" x2="610.0" y1="86" y2="206" class="grid"/><text x="610.0" y="224" text-anchor="middle" class="tick">100%</text>
+<line x1="420.0" x2="420.0" y1="82" y2="206" class="ref"/><text x="424.0" y="80" class="tick">coin flip</text>
+<g><title>Newer card is better (baseline): 48% ± 4%</title><rect x="0" y="92" width="680" height="38" class="hit"/><text x="218" y="116.0" text-anchor="end">Newer card is better (baseline)</text><path class="base" d="M230 103.0 H407.7 Q411.7 103.0 411.7 107.0 V115.0 Q411.7 119.0 407.7 119.0 H230 Z"/>
+<line x1="396.1" x2="427.3" y1="111.0" y2="111.0" class="whisker"/><line x1="427.3" x2="427.3" y1="106.0" y2="116.0" class="whisker"/>
+<text x="433.3" y="116.0" class="val">48%</text></g>
+<g><title>Model, hand-set weights: 62% ± 3%</title><rect x="0" y="130" width="680" height="38" class="hit"/><text x="218" y="154.0" text-anchor="end" class="val">Model, hand-set weights</text><path class="app" d="M230 141.0 H462.1 Q466.1 141.0 466.1 145.0 V153.0 Q466.1 157.0 462.1 157.0 H230 Z"/>
+<line x1="454.3" x2="477.9" y1="149.0" y2="149.0" class="whisker"/><line x1="477.9" x2="477.9" y1="144.0" y2="154.0" class="whisker"/>
+<text x="483.9" y="154.0" class="val">62%</text></g>
+<g><title>Model, calibrated weights: 72% ± 4%</title><rect x="0" y="168" width="680" height="38" class="hit"/><text x="218" y="192.0" text-anchor="end" class="val">Model, calibrated weights</text><path class="app" d="M230 179.0 H500.7 Q504.7 179.0 504.7 183.0 V191.0 Q504.7 195.0 500.7 195.0 H230 Z"/>
+<line x1="489.1" x2="520.2" y1="187.0" y2="187.0" class="whisker"/><line x1="520.2" x2="520.2" y1="182.0" y2="192.0" class="whisker"/>
+<text x="526.2" y="192.0" class="val">72%</text></g>
+<line x1="230" x2="230" y1="86" y2="206" class="axis"/></svg>

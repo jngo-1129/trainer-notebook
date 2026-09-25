@@ -6,6 +6,7 @@ tests/screenshots/
 *.sqlite
 *.sqlite3
 data/cache/
+trainer-notebook-*.json
 
 # Python
 __pycache__/
@@ -16,3 +17,7 @@ venv/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Third-party editorial content: full copy of Game8's tier list. Kept local (regenerate with the
+# game-data-researcher agent, see docs/EVALUATION.md); only derived results are published.
+data/tier_labels.json
